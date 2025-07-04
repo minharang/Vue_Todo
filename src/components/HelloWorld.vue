@@ -17,6 +17,7 @@ const count = ref(0)
       Edit
       <code>components/HelloWorld.vue</code> to test HMR
     </p>
+    <h1>밍지밍지 Hi</h1>
   </div>
 
   <p>
