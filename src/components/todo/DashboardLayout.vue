@@ -1,6 +1,6 @@
 <script setup>
 import TheHeader from '../common/TheHeader.vue';
-import TheSidebar from '../common/TheSidebar.vue';
+//import TheSidebar from '../common/TheSidebar.vue';
 import WorkEffortCard from '../common/WorkEffortCard.vue';
 import TodoListCard from '../common/TodoListCard.vue';
 </script>
@@ -9,7 +9,7 @@ import TodoListCard from '../common/TodoListCard.vue';
   <div class="dashboard-layout">
     <TheHeader />
     <div class="dashboard-content-wrapper">
-      <TheSidebar />
+      <!-- <TheSidebar /> -->
       <main class="main-content-area">
         <WorkEffortCard />
         <TodoListCard />
