@@ -7,10 +7,10 @@
     <div class="header-left">
       <div class="logo">LOGO</div>
       <nav class="header-nav">
-        <a href="#" class="nav-item active">홈</a>
-        <a href="#" class="nav-item">SR관리</a>
-        <a href="#" class="nav-item">통계관리</a>
-        <a href="#" class="nav-item">사용자관리</a>
+        <a href="/" class="nav-item active">홈</a>
+        <a href="/SRManagerPage" class="nav-item">SR관리</a>
+        <a href="/StatisticsManagerPage" class="nav-item">통계관리</a>
+        <a href="/AccountManagerPage" class="nav-item">사용자관리</a>
       </nav>
     </div>
     <div class="header-right">
