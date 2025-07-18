@@ -33,6 +33,7 @@
     <div class="header-right">
       <button class="icon-button"><span class="moon-icon">🌙</span></button>
       <button class="logout-button">로그아웃</button>
+      <RouterLink to="/Login">임시 로그인</RouterLink>
     </div>
   </header>
 </template>

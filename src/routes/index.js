@@ -3,6 +3,7 @@ import HomePage from '@/routes/pages/HomePage.vue'
 import SRManagerPage from '@/routes/pages/SRManagerPage.vue'
 import StatisticsManagerPage from '@/routes/pages/StatisticsManagerPage.vue'
 import AccountManagerPage from '@/routes/pages/AccountManagerPage.vue'
+import LoginRouterPage from '@/routes/pages/LoginRouterPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,6 +11,10 @@ const router = createRouter({
     {
       path: '/',
       component: HomePage
+    },
+    {
+      path: '/Login',
+      component: LoginRouterPage
     },
     {
       path: '/SRManager',
