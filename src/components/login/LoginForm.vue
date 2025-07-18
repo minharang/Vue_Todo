@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import MembershipForm from '../userMng/MembershipForm.vue'; 
 
 const username = ref('');
 const password = ref('');
@@ -53,7 +54,11 @@ const handleLogin = () => {
 
     <div class="login-links">
       <a href="#" class="link-item">비밀번호 찾기</a>
-      <span class="link-divider"></span> <a href="#" class="link-item">회원가입</a>
+      <!-- <span class="link-divider"></span> <a href="#" class="link-item open-modal-button" @click="openMembershipFormModal">회원가입</a> -->
+      
+      <!--
+       <CreateTodoModal :isVisible="isModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" /> -->
+
     </div>
   </div>
 </template>
