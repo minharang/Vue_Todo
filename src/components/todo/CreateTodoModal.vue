@@ -20,7 +20,8 @@ const formData = ref({
   mistranslation: '',
   effortTime: '',
   noteEffortTime: '', // 기입할 공수시간
-  requester: ''
+  requester: '',
+  requestContent: '' // 새로 추가된 요청 내용 필드
 });
 
 const closeModal = () => {
@@ -44,7 +45,7 @@ const createTodo = () => {
       </div>
 
       <div class="modal-body">
-        <div class="form-row">
+         <!-- <div class="form-row">
           <label class="form-label">중요도</label>
           <div class="radio-group">
             <label class="radio-label">
@@ -54,7 +55,7 @@ const createTodo = () => {
               <input type="radio" name="importance" value="high" v-model="formData.importance" class="radio-input"> 높음
             </label>
           </div>
-        </div>
+        </div> -->
 
         <div class="form-row">
           <label for="priority" class="form-label">우선순위</label>
@@ -73,35 +74,30 @@ const createTodo = () => {
           <label for="completionDate" class="form-label">완료일</label>
           <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input">
         </div>
-
-        <div class="form-row">
-          <label for="remindCompletionDate" class="form-label">독촉완료일</label>
-          <input type="date" id="remindCompletionDate" v-model="formData.remindCompletionDate" class="form-input">
-        </div>
-
-        <div class="form-row">
-          <label for="mistranslation" class="form-label">오역</label>
-          <input type="text" id="mistranslation" v-model="formData.mistranslation" class="form-input">
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">SR번호</label>
+        
+        <!-- <div class="form-row">
+          <label class="form-label">공수시간</label>
           <p class="read-only-text">자동 계산</p>
-        </div>
+        </div> -->
 
-        <div class="form-row">
+        <!-- <div class="form-row">
           <label for="effortTime" class="form-label">공수시간</label>
           <div class="input-two-fields">
             <input type="text" id="effortTime" v-model="formData.effortTime" class="form-input short-input">
             <input type="text" placeholder="공수시간" v-model="formData.noteEffortTime" class="form-input long-input">
           </div>
-        </div>
-
+        </div> -->
+        
         <div class="form-row">
           <label for="requester" class="form-label">요청자</label>
           <input type="text" id="requester" v-model="formData.requester" class="form-input">
         </div>
-      </div>
+
+        <div class="form-row textarea-row">
+          <label for="requestContent" class="form-label">요청 내용</label>
+          <textarea id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea>
+        </div>
+        </div>
 
       <div class="modal-footer">
         <button class="button button-cancel" @click="closeModal">취소</button>
@@ -136,6 +132,7 @@ const createTodo = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden; /* 내용이 넘칠 경우 스크롤 처리 */
+  max-height: 90vh; /* 모달 높이가 화면을 넘지 않도록 */
 }
 
 /* 모달 헤더 */
@@ -146,6 +143,7 @@ const createTodo = () => {
   padding: 20px 25px;
   border-bottom: 1px solid #eee;
   background-color: #f7f7f7; /* 이미지 상의 살짝 회색 배경 */
+  flex-shrink: 0; /* 헤더가 줄어들지 않도록 고정 */
 }
 
 .modal-title {
@@ -288,6 +286,18 @@ const createTodo = () => {
   flex-grow: 1; /* 나머지 공간 차지 */
 }
 
+/* 요청 내용 textarea 전용 스타일 */
+.textarea-row {
+  align-items: flex-start; /* 라벨을 상단에 정렬 (textarea는 여러 줄이므로) */
+}
+
+.textarea-input {
+  resize: vertical; /* 세로 크기만 조절 가능하도록 */
+  min-height: 80px; /* 최소 높이 설정 */
+  /* form-input의 다른 스타일은 상속받음 */
+}
+
+
 /* 모달 푸터 */
 .modal-footer {
   display: flex;
@@ -369,6 +379,14 @@ const createTodo = () => {
   .icon-calendar {
     margin-left: 0; /* 모바일에서 아이콘 마진 조정 */
     margin-top: 5px;
+  }
+
+  /* 요청 내용 textarea 모바일 반응형 */
+  .textarea-row {
+    align-items: flex-start; /* 모바일에서도 상단 정렬 유지 */
+  }
+  .textarea-input {
+    min-height: 100px; /* 모바일에서 최소 높이 증가 */
   }
 }
 </style>

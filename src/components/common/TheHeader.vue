@@ -3,38 +3,20 @@
 </script>
 
 <template>
-<!-- 20250717 RouterLink 적용 전단계
   <header class="the-header">
     <div class="header-left">
-      <div class="logo">LOGO</div>
+      <div class="logo">📋TODO</div>
       <nav class="header-nav">
-        <a href="/" class="nav-item active">홈</a>
-        <a href="/SRManager" class="nav-item">SR관리</a>
-        <a href="/StatisticsManager" class="nav-item">통계관리</a>
-        <a href="/AccountManager" class="nav-item">사용자관리</a>
+        <RouterLink to="/" class="nav-item">홈</RouterLink>
+        <RouterLink to="/SRManager" class="nav-item">SR관리</RouterLink>
+        <RouterLink to="/StatisticsManager" class="nav-item">통계관리</RouterLink>
+        <RouterLink to="/AccountManager" class="nav-item">사용자관리</RouterLink>
       </nav>
     </div>
     <div class="header-right">
       <button class="icon-button"><span class="moon-icon">🌙</span></button>
       <button class="logout-button">로그아웃</button>
-    </div>
-  </header>
--->
-  <header class="the-header">
-    <div class="header-left">
-      <div class="logo">LOGO</div>
-      <nav class="header-nav">
-        <RouterLink to="/">홈</RouterLink>
-        <RouterLink to="/SRManager">SR관리</RouterLink>
-        <RouterLink to="/StatisticsManager">통계관리</RouterLink>
-        <RouterLink to="/AccountManager">사용자관리</RouterLink>
-      </nav>
-    </div>
-    <div class="header-right">
-      <button class="icon-button"><span class="moon-icon">🌙</span></button>
-      <button class="logout-button">로그아웃</button>
-      <RouterLink to="/Login">임시 로그인</RouterLink>
-    </div>
+      <RouterLink to="/Login" class="nav-item">임시 로그인</RouterLink> </div>
   </header>
 </template>
 
@@ -65,6 +47,7 @@
   gap: 30px; /* 메뉴 항목 간 간격 */
 }
 
+/* RouterLink에 직접 nav-item 클래스를 부여했으므로 이 선택자 유지 */
 .nav-item {
   color: #c0c0c0; /* 비활성화된 메뉴 색상 */
   text-decoration: none;
@@ -78,12 +61,16 @@
   color: #fff;
 }
 
-.nav-item.active {
+/* ***** 이 부분을 수정했습니다. ***** */
+/* RouterLink가 활성화될 때 자동으로 부여되는 클래스를 활용 */
+.nav-item.router-link-active, /* 정확히 일치하는 경우 */
+.nav-item.router-link-exact-active { /* 하위 경로도 포함하는 경우 (필요에 따라 둘 중 하나만 사용) */
   color: #fff; /* 활성화된 메뉴 색상 */
   font-weight: bold;
 }
 
-.nav-item.active::after {
+.nav-item.router-link-active::after,
+.nav-item.router-link-exact-active::after {
   content: '';
   position: absolute;
   left: 0;
@@ -93,6 +80,8 @@
   background-color: #fff; /* 활성화된 메뉴 밑줄 색상 */
   border-radius: 2px;
 }
+/* ****************************** */
+
 
 .header-right {
   display: flex;

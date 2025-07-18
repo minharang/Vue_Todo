@@ -1,8 +1,8 @@
 <script setup>
 import TheHeader from '../common/TheHeader.vue';
 //import TheSidebar from '../common/TheSidebar.vue';
-import WorkEffortCard from '../common/WorkEffortCard.vue';
-import TodoListCard from '../common/TodoListCard.vue';
+import WorkEffortCard from './WorkEffortCard.vue';
+import TodoListCard from './TodoListCard.vue';
 </script>
 
 <template>

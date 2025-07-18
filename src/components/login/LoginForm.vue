@@ -1,11 +1,19 @@
 <script setup>
 import { ref } from 'vue';
-import MembershipForm from '../userMng/MembershipForm.vue'; 
+import MembershipFormModal from '../userMng/MembershipForm.vue'; 
 
 const username = ref('');
 const password = ref('');
 const rememberMe = ref(false);
+const isModalVisible = ref(false);
 
+const openMembershipFormModal = () => {
+  isModalVisible.value = true;
+};
+
+const closeMembershipFormModal = () => {
+  isModalVisible.value = false;
+};
 const handleLogin = () => {
   console.log('로그인 시도:', { username: username.value, password: password.value, rememberMe: rememberMe.value });
   // 여기에 실제 로그인 로직 (API 호출 등)을 추가합니다.
@@ -54,11 +62,8 @@ const handleLogin = () => {
 
     <div class="login-links">
       <a href="#" class="link-item">비밀번호 찾기</a>
-      <!-- <span class="link-divider"></span> <a href="#" class="link-item open-modal-button" @click="openMembershipFormModal">회원가입</a> -->
-      
-      <!--
-       <CreateTodoModal :isVisible="isModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" /> -->
-
+      <span class="link-divider"></span> <a href="#" class="link-item open-modal-button" @click="openMembershipFormModal">회원가입</a>
+      <MembershipFormModal :isVisible="isModalVisible" @close="closeMembershipFormModal" />
     </div>
   </div>
 </template>
