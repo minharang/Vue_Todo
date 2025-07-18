@@ -7,7 +7,8 @@ import TodoListCard from '../common/TodoListCard.vue';
 
 <template>
   <div class="dashboard-layout">
-    <TheHeader />
+    <!-- 라우터 적용위한 헤더 App.vue로 이동 -->
+    <!-- <TheHeader /> -->
     <div class="dashboard-content-wrapper">
       <!-- <TheSidebar /> -->
       <main class="main-content-area">

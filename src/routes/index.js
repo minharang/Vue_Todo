@@ -12,22 +12,16 @@ const router = createRouter({
       component: HomePage
     },
     {
-      path: '/SRManagerPage',
+      path: '/SRManager',
       component: SRManagerPage
     },
     {
-      path: '/StatisticsManagerPage',
-      component: StatisticsManagerPage,
-      meta: {
-        requiresAuth: true
-      }
+      path: '/StatisticsManager',
+      component: StatisticsManagerPage
     },
     {
-      path: '/AccountManagerPage',
-      component: AccountManagerPage,
-      meta: {
-        requiresAuth: true
-      }
+      path: '/AccountManager',
+      component: AccountManagerPage
     }
   ]
 })

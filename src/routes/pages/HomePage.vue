@@ -1,9 +1,7 @@
 <script setup>
-//import { useCountStore } from '@/stores/count'
-
-//const countStore = useCountStore()
+import DashboardLayout from '@/components/todo/DashboardLayout.vue';
 </script>
 <template>
-  <h1>Home Page!</h1>
-  
+  <!-- <h1>Home Page!</h1> -->
+  <DashboardLayout />
 </template>

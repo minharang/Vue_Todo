@@ -3,14 +3,31 @@
 </script>
 
 <template>
+<!-- 20250717 RouterLink 적용 전단계
   <header class="the-header">
     <div class="header-left">
       <div class="logo">LOGO</div>
       <nav class="header-nav">
         <a href="/" class="nav-item active">홈</a>
-        <a href="/SRManagerPage" class="nav-item">SR관리</a>
-        <a href="/StatisticsManagerPage" class="nav-item">통계관리</a>
-        <a href="/AccountManagerPage" class="nav-item">사용자관리</a>
+        <a href="/SRManager" class="nav-item">SR관리</a>
+        <a href="/StatisticsManager" class="nav-item">통계관리</a>
+        <a href="/AccountManager" class="nav-item">사용자관리</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <button class="icon-button"><span class="moon-icon">🌙</span></button>
+      <button class="logout-button">로그아웃</button>
+    </div>
+  </header>
+-->
+  <header class="the-header">
+    <div class="header-left">
+      <div class="logo">LOGO</div>
+      <nav class="header-nav">
+        <RouterLink to="/">홈</RouterLink>
+        <RouterLink to="/SRManager">SR관리</RouterLink>
+        <RouterLink to="/StatisticsManager">통계관리</RouterLink>
+        <RouterLink to="/AccountManager">사용자관리</RouterLink>
       </nav>
     </div>
     <div class="header-right">
