@@ -12,7 +12,7 @@ import TodoListCard from './TodoListCard.vue';
     <div class="dashboard-content-wrapper">
       <!-- <TheSidebar /> -->
       <main class="main-content-area">
-        <WorkEffortCard />
+        <!-- <WorkEffortCard /> develop 할때 개발-->
         <TodoListCard />
       </main>
     </div>
