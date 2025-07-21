@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import MembershipFormModal from '../userMng/MembershipForm.vue'; 
+import usersData from '../../data/users.json';
 
+const router = useRouter();
 const username = ref('');
 const password = ref('');
 const rememberMe = ref(false);
@@ -15,9 +18,18 @@ const closeMembershipFormModal = () => {
   isModalVisible.value = false;
 };
 const handleLogin = () => {
-  console.log('로그인 시도:', { username: username.value, password: password.value, rememberMe: rememberMe.value });
+  const user = usersData.find(u => u.username === username.value && u.password === password.value);
+  // console.log('로그인 시도:', { username: username.value, password: password.value, rememberMe: rememberMe.value });
   // 여기에 실제 로그인 로직 (API 호출 등)을 추가합니다.
-  alert('로그인 시도! (콘솔 확인)');
+  // alert('로그인 시도! (콘솔 확인)');
+  if (user) {
+    // 1. 로그인 성공 시
+    alert(`${user.username}님, 로그인 성공!`);
+    router.push('/');   
+  } else {
+    alert(`로그인 실패!`);
+    return;
+  }
 };
 </script>
 

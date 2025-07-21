@@ -23,7 +23,7 @@ import LoginForm from './LoginForm.vue'; // LoginForm 컴포넌트 임포트
   align-items: center; /* 가로 중앙 정렬 */
   justify-content: center; /* 세로 중앙 정렬 (로그인 폼만 있을 경우) */
   font-family: 'Arial', sans-serif; /* 기본 폰트 설정 */
-}3
+}
 
 .login-main-content {
   /* 필요에 따라 추가 스타일 */
