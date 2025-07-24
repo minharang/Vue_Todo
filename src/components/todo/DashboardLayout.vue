@@ -2,6 +2,7 @@
 import TheHeader from '../common/TheHeader.vue';
 //import TheSidebar from '../common/TheSidebar.vue';
 import WorkEffortCard from './WorkEffortCard.vue';
+import WorkloadProgressChart from './WorkloadProgressChart.vue';
 import TodoListCard from './TodoListCard.vue';
 </script>
 
@@ -13,7 +14,8 @@ import TodoListCard from './TodoListCard.vue';
       <!-- <TheSidebar /> -->
       <main class="main-content-area">
         <!-- <WorkEffortCard /> develop 할때 개발-->
-        <TodoListCard />
+        <WorkloadProgressChart/>
+        <TodoListCard style="margin-top: 7%;"/>
       </main>
     </div>
   </div>
