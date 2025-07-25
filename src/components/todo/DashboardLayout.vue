@@ -15,7 +15,7 @@ import TodoListCard from './TodoListCard.vue';
       <main class="main-content-area">
         <!-- <WorkEffortCard /> develop 할때 개발-->
         <WorkloadProgressChart/>
-        <TodoListCard style="margin-top: 7%;"/>
+        <TodoListCard/>
       </main>
     </div>
   </div>

@@ -1,30 +1,28 @@
 <template>
-  <h2 class="text-xl font-semibold mb-4">업무 수행률 정보</h2>
-  <div class="flex max-w-4xl mx-auto p-6 rounded-2xl shadow-xl bg-white items-stretch gap-6 justify-between">
+  <h2 class="section-title">업무 수행률 정보</h2> 
+  <div class="performance-info-card"> 
 
-    <!-- 왼쪽 도넛차트 영역 -->
-     <div name="a" class="flex flex-col items-center justify-start" style="width: 200px; height: 150px;">
+    <div class="chart-section">
       <h3 class="card-title mb-2">업무 공수시간</h3>
-      <!-- ✅ 도넛 차트 wrapper -->
-      <div class="relative w-full h-[200px]">
-        <!-- ✅ 도넛 차트 -->
+      <div class="donut-chart-wrapper">
         <Pie :data="chartData" :options="chartOptions" :plugins="[centerTextPlugin]" />
       </div>
     </div>
 
-  <!-- 텍스트 정보 영역 -->
-  <div name="b" class="w-2/3 h-full flex flex-col justify-between text-sm text-gray-700 leading-relaxed" style="margin-top: -160px;">
+    <div class="summary-section">
       <div class="relative flex-1">
-        <h3 class="card-title" style="margin-bottom: 5%;">업무 공수시간 요약</h3>
+        <h3 class="card-title summary-title">업무 공수시간 요약</h3>
 
+        <ul class="summary-list"> 
           <li>📊 총 업무시간: <strong>{{ totalHours }}</strong>시간</li>
           <li>🗓️ 휴일/휴가 시간: <strong>{{ holidayHours }}</strong>시간</li>
           <li>⏰ 실제 업무 가능 시간: <strong>{{ totalAvailableHours }}</strong>시간</li>
           <li>💼 실제 근무한 시간: <strong>{{ actualHours }}</strong>시간</li>
+        </ul>
 
       </div>
-</div>
-</div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -37,7 +35,7 @@ import {
 } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 
-ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels) 
 
 // ✅ 데이터 설정
 const totalHours = 500
@@ -60,21 +58,21 @@ const chartData = {
 }
 
 const chartOptions = {
-  responsive: false,
-  maintainAspectRatio: false,
+  responsive: false, 
+  maintainAspectRatio: false, 
   cutout: '60%',
   plugins: {
     legend: {
-      display: true,
+      display: false, 
     },
     tooltip: {
-      displayColors: false, // 여기 추가
+      displayColors: false,
       callbacks: {
         label: (context) => `${context.label}: ${context.raw}시간`,
       },
     }, 
     datalabels: {
-      display: true,
+      display: false, 
       color: 'black',
       font: {
         weight: 'bold',
@@ -92,10 +90,10 @@ const centerTextPlugin = {
     const text = `${percentage}%`;
 
     ctx.restore();
-    const fontSize = (height / 100).toFixed(2);
-    ctx.font = `${fontSize}em sans-serif`;
+    const fontSize = (height / 100 * 0.4).toFixed(2); 
+    ctx.font = `bold ${fontSize}em sans-serif`; 
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#4F46E5';
+    ctx.fillStyle = '#4F46E5'; 
     const textX = Math.round((width - ctx.measureText(text).width) / 2);
     const textY = height / 2;
     ctx.fillText(text, textX, textY);
@@ -105,8 +103,192 @@ const centerTextPlugin = {
 </script>
 
 <style scoped>
-canvas {
-  width: 300px !important;
-  height: 300px !important;
+/* 섹션 타이틀 스타일 */
+.section-title {
+  font-size: 1.5rem; 
+  font-weight: 600; 
+  color: #333;
+  margin-bottom: 1rem; 
+  text-align: center; 
+}
+
+.performance-info-card {
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 160px; /* <-- 간격을 120px에서 160px로 더 증가시켰습니다. */
+  width: 100%; 
+  max-width: none; 
+  padding: 40px; 
+  min-height: 350px; 
+  margin: 0 auto; 
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; 
+}
+
+.chart-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0; 
+}
+
+.card-title {
+  font-size: 1.2em; 
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px; 
+  white-space: nowrap; 
+}
+
+.donut-chart-wrapper {
+  position: relative;
+  width: 280px; 
+  height: 280px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.donut-chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.summary-section {
+  flex-grow: 1; 
+  flex-shrink: 1; 
+  max-width: 450px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  text-align: left; 
+}
+
+.summary-title {
+  margin-bottom: 20px; 
+}
+
+.summary-list {
+  list-style: none; 
+  padding: 0;
+  margin: 0;
+  font-size: 17px; 
+  color: #555;
+  line-height: 2.2; 
+}
+
+.summary-list li strong {
+  color: #333;
+  font-weight: 700;
+  margin-left: 5px; 
+}
+
+/* 반응형 */
+@media (max-width: 1200px) { 
+    .performance-info-card {
+        gap: 120px; /* 1200px 이하에서 간격 조정 (기존 80px에서 120px로) */
+        padding: 35px;
+        min-height: 320px;
+    }
+    .donut-chart-wrapper {
+        width: 250px;
+        height: 250px;
+    }
+    .summary-section {
+        max-width: 400px; 
+    }
+    .summary-list {
+        font-size: 16px;
+        line-height: 2;
+    }
+    .card-title {
+        font-size: 1.15em;
+        margin-bottom: 18px;
+    }
+}
+
+@media (max-width: 992px) { 
+  .performance-info-card {
+    gap: 80px; /* 992px 이하에서 간격 조정 (기존 60px에서 80px로) */
+    padding: 30px;
+    min-height: 300px;
+  }
+  .donut-chart-wrapper {
+    width: 220px; 
+    height: 220px; 
+  }
+  .summary-section {
+      max-width: 350px; 
+  }
+  .summary-list {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .card-title {
+      font-size: 1.1em;
+      margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 768px) { 
+  .section-title {
+      font-size: 1.3rem; 
+  }
+
+  .performance-info-card {
+    flex-direction: column; 
+    gap: 30px; 
+    padding: 25px; 
+    margin: 0 15px; 
+    min-height: unset; 
+  }
+
+  .chart-section {
+    width: 100%;
+    align-items: center;
+  }
+
+  .donut-chart-wrapper {
+    width: 200px; 
+    height: 200px;
+  }
+
+  .summary-section {
+    width: 100%; 
+    max-width: none; 
+    text-align: left; 
+  }
+
+  .summary-list {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .card-title {
+      font-size: 1.0em;
+      margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) { 
+    .section-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    .performance-info-card {
+        padding: 15px;
+        gap: 20px;
+        margin: 0 10px; 
+    }
+    .donut-chart-wrapper {
+        width: 160px; 
+        height: 160px;
+    }
+    .summary-list {
+        font-size: 13px;
+        line-height: 1.6;
+    }
 }
 </style>
