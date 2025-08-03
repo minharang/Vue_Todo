@@ -37,24 +37,18 @@ const updateValue = (event) => {
 };
 </script>
 <template>
- <!-- <TheInputBox id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" type="입력 필드 타입" v-model="modelValue" :srOnlyLabel="true" /> -->
-  <div class="form-group">
-    <label :for="id" :class="{ 'sr-only': props.srOnlyLabel }">{{ label }}</label>
-        <input
-          :type="type"
-          :id="id"
-          :placeholder="placeholder"
-          :value="modelValue"
-          @input="updateValue"
-          class="form-input"
-    />
-  </div>
+<!-- <TheInputBox id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" type="입력 필드 타입" v-model="modelValue" :srOnlyLabel="true" /> -->
+  <label :for="id" :class="{ 'sr-only': props.srOnlyLabel }">{{ label }}</label>
+      <input
+        :type="type"
+        :id="id"
+        :placeholder="placeholder"
+        :value="modelValue"
+        @input="updateValue"
+        class="form-input"
+  />
 </template>
 <style scoped>
-.form-group {
-  margin-bottom: 20px;
-}
-
 .form-input {
   width: calc(100% - 20px); /* 패딩 고려 */
   padding: 12px 20px;
