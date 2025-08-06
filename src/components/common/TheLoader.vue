@@ -20,6 +20,7 @@ body {
 .hloader {
   /* --hloader-color: #e96900;
   --hloader-size: 100px; */
+  margin: 0 auto;
   --hloader-weight: 4;
   --hloader-duration: 1.5s;
   width: var(--hloader-size);

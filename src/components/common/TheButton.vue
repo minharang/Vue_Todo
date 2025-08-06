@@ -1,5 +1,6 @@
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
+import TheLoader from '@/components/common/TheLoader.vue';
 
 const props = defineProps({
   class: {
@@ -25,6 +26,10 @@ const props = defineProps({
   iconYn: {
     type: Boolean,
     default: false
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -34,15 +39,16 @@ const emit = defineEmits(['click']);
 const handleClick = (event) => {
   if (!props.disabled) {
     emit('click', event);
+    
   }
 };
 
 </script>
 
 <template>
-  <!-- <TheButtom type="입력 필드 타입" class="클래스 속성" text="버튼 이름" @click="클릭이벤트" :iconYn="아이콘 여부-false는 생략가능"/> -->
+  <!-- <TheButtom type="입력 필드 타입" class="클래스 속성" text="버튼 이름" @click="클릭이벤트" :iconYn="아이콘 여부-false는 생략가능" :loading="로딩 상태"/> -->
   
-  <button :type="type" :class="class" :disabled="disabled" @click="handleClick" v-if="iconYn">
+  <button :type="type" :class="class" :disabled="disabled" @click="handleClick" v-if="iconYn" >
     <span class="moon-icon">
       {{ text }}
     </span>
@@ -51,6 +57,7 @@ const handleClick = (event) => {
   <button :type="type" :class="class" :disabled="disabled" @click="handleClick" v-else>
    {{ text }}
   </button>
+
 
 </template>
 

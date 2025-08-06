@@ -10,21 +10,17 @@ const props = defineProps({
     type: String,
     default: '' 
   },
-  type: {
-    type: String,
-    default: 'text' 
-  },
   placeholder: {
     type: String,
     default: ''
   },
+  row: {
+    type: Number,
+    default: 5
+  },
   modelValue: {
     type: [String, Number], // v-model을 위한 값
     default: ''
-  },
-  srOnlyLabel: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -37,16 +33,16 @@ const updateValue = (event) => {
 };
 </script>
 <template>
-<!-- <TheInputBox id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" type="입력 필드 타입" v-model="modelValue" :srOnlyLabel="true" /> -->
-  <label :for="id" :class="{ 'sr-only': props.srOnlyLabel }">{{ label }}</label>
-      <input
-        :type="type"
+<!-- <TheTextArea id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" v-model="modelValue" :srOnlyLabel="true" :row = "높이"/> -->
+  <label :for="id" class="form-label">{{ label }}</label>
+    <textarea
         :id="id"
         :placeholder="placeholder"
         :value="modelValue"
+        :row = "row"
         @input="updateValue"
-        class="form-input"
-  />
+        class="fform-input textarea-input">
+    </textarea>
 </template>
 <style scoped>
 .form-label {
@@ -77,7 +73,9 @@ const updateValue = (event) => {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.sr-only {
-  display:none;
+.textarea-input {
+  resize: vertical; /* 세로 크기만 조절 가능하도록 */
+  min-height: 80px; /* 최소 높이 설정 */
+  /* form-input의 다른 스타일은 상속받음 */
 }
 </style>

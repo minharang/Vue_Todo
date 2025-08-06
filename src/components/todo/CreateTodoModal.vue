@@ -66,8 +66,8 @@ const createTodo = () => {
           <label for="regDate" class="form-label">등록일</label>
           <div class="input-with-icon">
             <input type="date" id="regDate" v-model="formData.regDate" class="form-input date-input">
-            <span class="icon-calendar">📅</span> <input type="date" id="regDateEnd" v-model="formData.regDateEnd" class="form-input date-input ml-10">
-            <span class="icon-calendar">📅</span> </div>
+             <input type="date" id="regDateEnd" v-model="formData.regDateEnd" class="form-input date-input ml-10">
+          </div>
         </div>
 
         <div class="form-row">
