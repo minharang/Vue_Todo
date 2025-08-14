@@ -1,15 +1,11 @@
 <script setup>
-import LoginPage from './components/login/LoginPage.vue';
-import DashboardLayout from './components/todo/DashboardLayout.vue';
 import TheHeader from '@/components/common/TheHeader.vue';
 import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <!-- <LoginPage /> -->
   <TheHeader />
   <RouterView />
-  <!-- <DashboardLayout/> -->
 </template>
 
 <style scoped>

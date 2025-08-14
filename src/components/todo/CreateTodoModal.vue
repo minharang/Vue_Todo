@@ -1,5 +1,6 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
+import { useTodoStore } from '@/stores/todo'; // Todo store import
 
 const props = defineProps({
   isVisible: {
@@ -28,12 +29,19 @@ const closeModal = () => {
   emit('close');
 };
 
-const createTodo = () => {
+const todoStore = useTodoStore()
+
+const createTodo = async () => {
   console.log('할 일 생성 데이터:', formData.value);
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
+  await todoStore.createTodo(formData.value) // fetch로 등록
+  // await todoStore.updateTodo(수정할데이터)
+  // await todoStore.deleteTodo(할일ID)
+  await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('create', formData.value);
   closeModal(); // 생성 후 모달 닫기
 };
+
 </script>
 
 <template>
