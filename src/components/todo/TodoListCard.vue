@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed , onMounted } from 'vue';
 import CreateTodoModal from '../todo/CreateTodoModal.vue'; 
 
 const tabs = [
@@ -11,41 +11,22 @@ const tabs = [
 ];
 const currentTab = ref('all'); // 현재 활성화된 탭
 
-const todos = ref([
-  {
-    id: 1,
-    status: '완료',
-    summary: { title: '첫 번째 작업', srNo: 'SR-004' },
-    regDate: { start: '2024-24', end: '2024-25' },
-    completionDate: { planned: '2024-24', actual: '2024-25' },
-    effortTime: { planned: '6.0 h', actual: '6.0 h / 7 h' }
-  },
-  {
-    id: 2,
-    status: '진행중',
-    summary: { title: '두 번째 작업', srNo: 'SR-003' },
-    regDate: { start: '2024-24', end: '' },
-    completionDate: { planned: '2024-24', actual: '24' },
-    effortTime: { planned: '3.0 / -', actual: '3.0 h / -' }
-  },
-  {
-    id: 3,
-    status: '보류',
-    summary: { title: '세 번째 작업', srNo: 'SR-002' },
-    regDate: { start: '2024-22', end: '' },
-    completionDate: { planned: '- / -', actual: '- / -' },
-    effortTime: { planned: '- / -', actual: '- / -' }
-  },
-  {
-    id: 4,
-    status: '미완료',
-    summary: { title: '네 번째 작업', srNo: 'SR-001' },
-    regDate: { start: '2024-24', end: '2024-21' },
-    completionDate: { planned: '- / 2.5h', actual: '2.5h' },
-    effortTime: { planned: '- / 2.5h', actual: '2.5h' }
+// 상태 변수
+const todos = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+onMounted(async () => {
+  try {
+    const res = await fetch("http://localhost:3000/todos")
+    if (!res.ok) throw new Error("API 호출 실패")
+    todos.value = await res.json()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
   }
-  // 더 많은 할 일 데이터 추가
-]);
+})
 
 const filteredTodos = computed(() => {
   if (currentTab.value === 'all') {
@@ -58,7 +39,7 @@ const filteredTodos = computed(() => {
     'completed': '완료'
   };
   const targetStatus = statusMap[currentTab.value];
-  return todos.value.filter(todo => todo.status === targetStatus);
+  return todos.value.filter(todo => todo.priority === targetStatus);
 });
 
 const addTodo = () => {
@@ -92,6 +73,15 @@ const handleCreateTodo = (formData) => {
   // 여기에 실제 할 일 목록에 데이터를 추가하는 로직을 구현합니다.
   alert('할 일이 성공적으로 생성되었습니다!');
 };
+const calcDiffDays = (start, end) => {
+  if (!end) return ''
+  if (!start) return ''
+
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  const diffTime = endDate.getTime() - startDate.getTime()
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+};
 </script>
 
 <template>
@@ -119,38 +109,40 @@ const handleCreateTodo = (formData) => {
         <thead>
           <tr>
             <th>상태</th>
-            <th>요약</th>
-            <th>등록일</th>
+            <th>요청자 <br>요약</th>
+            <th>등록일<br>처리일</br></th>
             <th>완료일</th>
             <th>공수시간</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="todo in filteredTodos" :key="todo.id" :class="getTodoStatusClass(todo.status)">
+          <tr v-for="todo in filteredTodos" :key="todo.id" :class="getTodoStatusClass(todo.priority)">
             <td>
-              <span v-if="todo.status === '완료'" class="status-icon completed">✔</span>
-              <span v-else-if="todo.status === '진행중'" class="status-icon in-progress"></span>
-              <span v-else-if="todo.status === '보류'" class="status-icon on-hold">▲</span>
-              <span v-else-if="todo.status === '미완료'" class="status-icon incomplete"></span>
-              {{ todo.status }}
+              <span v-if="todo.priority === '완료'" class="status-icon completed">✔</span>
+              <span v-else-if="todo.priority === '진행중'" class="status-icon in-progress"></span>
+              <span v-else-if="todo.priority === '보류'" class="status-icon on-hold">▲</span>
+              <span v-else-if="todo.priority === '미완료'" class="status-icon incomplete"></span>
+              {{ todo.priority }}
             </td>
             <td>
-              <p class="todo-summary-title">{{ todo.summary.title }}</p>
-              <p class="todo-summary-sr">{{ todo.summary.srNo }}</p>
+              <p class="todo-summary-title">{{ todo.requester }}</p>
+              <p class="todo-summary-sr">{{ todo.requestContent }}</p>
+            </td>
+            
+            <td>
+              <p class="todo-date-top">{{ todo.regDate }}</p>
+              <p class="todo-date-bottom">{{ todo.regDateEnd}}</p>
             </td>
             <td>
-              <p class="todo-date-top">{{ todo.regDate.start }}</p>
-              <p class="todo-date-bottom">{{ todo.regDate.end }}</p>
+              <p class="todo-effort-top">{{ todo.completionDate }}</p>
+              <p class="todo-effort-bottom"></p>
             </td>
             <td>
-              <p class="todo-date-top">{{ todo.completionDate.planned }}</p>
-              <p class="todo-date-bottom">{{ todo.completionDate.actual }}</p>
-            </td>
-            <td>
-              <p class="todo-effort-top">{{ todo.effortTime.planned }}</p>
-              <p class="todo-effort-bottom">{{ todo.effortTime.actual }}</p>
+              <p class="todo-effort-top">{{ calcDiffDays(todo.regDate,  todo.completionDate) }}</p>
+              <p class="todo-effort-bottom"></p>
             </td>
           </tr>
+          
         </tbody>
       </table>
     </div>
