@@ -8,7 +8,7 @@ const API_BASE_URL = 'http://localhost:3000';
 const fetchUsers = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/users`); 
-        await axios.get(`${API_BASE_URL}/api/users`);
+        
         console.log(response.data);
         //users.value = response.data; 
 
