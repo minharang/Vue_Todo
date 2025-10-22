@@ -1,23 +1,61 @@
 <script setup>
 import { ref, computed , onMounted } from 'vue';
-import CreateTodoModal from '../todo/CreateTodoModal.vue'; 
+import TheButton from '@/components/common/TheButton.vue';
+import CreateTodoModal from '../todo/CreateTodoModal.vue';
+import axios from 'axios';
+const API_BASE_URL = 'http://localhost:3000'; 
 
-const tabs = [
+const tabs = ref([]);
+const currentTab = ref(null);
+const GRP_ID_FOR_TABS = 'S001';
+
+const fetchStatus = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/comcd/${GRP_ID_FOR_TABS}`); 
+        console.log(response.data);
+        
+         const fetchedTabs = response.data.map(item => ({
+            value: item.CD_ID, 
+            label: item.CD_NM 
+        }));
+
+        tabs.value = fetchedTabs;
+
+         if (fetchedTabs.length > 0) {
+            currentTab.value = fetchedTabs[0].value;
+        }
+
+    } catch (err) {
+        console.error('공통코드 정보를 불러오는데 실패하였습니다.', err);
+        tabs.value = [{ value: 'error', label: '오류발생' }];
+    } 
+};
+
+const handleTabClick = (tabValue) => {
+    currentTab.value = tabValue;
+    // TODO: 탭이 바뀔 때 데이터를 다시 불러오거나 필터링하는 로직을 여기에 추가
+    console.log(`탭변경됨요: ${tabValue}`);
+    
+};
+
+/*const tabs = [
   { label: '전체보기', value: 'all' },
   { label: '진행중', value: 'in-progress' },
   { label: '보류', value: 'on-hold' },
   { label: '미완료', value: 'incomplete' },
   { label: '완료', value: 'completed' }
-];
-const currentTab = ref('all'); // 현재 활성화된 탭
+];*/
+/*const currentTab = ref('all');*/ // 현재 활성화된 탭
 
 // 상태 변수
 const todos = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
+
 onMounted(async () => {
-  try {
+  fetchStatus();
+  /*try {
     const res = await fetch("http://localhost:3000/todos")
     if (!res.ok) throw new Error("API 호출 실패")
     todos.value = await res.json()
@@ -25,7 +63,7 @@ onMounted(async () => {
     error.value = err.message
   } finally {
     loading.value = false
-  }
+  }*/
 })
 
 const filteredTodos = computed(() => {
@@ -89,19 +127,22 @@ const calcDiffDays = (start, end) => {
     <div class="card-header-with-button">
       <h3 class="card-title">TODO 리스트</h3>
       <!-- <button class="add-button" @click="addTodo">추가</button> -->
-       <button @click="openCreateTodoModal" class="add-button open-modal-button">새 할 일 추가</button>
+       <!-- <button @click="openCreateTodoModal" class="add-button open-modal-button">새 할 일 추가</button> -->
+       <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>
        <CreateTodoModal :isVisible="isModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
     </div>
 
     <div class="tab-buttons">
-      <button
+      <!-- <button
         v-for="tab in tabs"
         :key="tab.value"
         :class="['tab-item', { active: currentTab === tab.value }]"
         @click="currentTab = tab.value"
       >
         {{ tab.label }}
-      </button>
+      </button> -->
+      <TheButton type="button" v-for="tab in tabs" :key="tab.value" 
+      :class="['tab-item', { active: currentTab === tab.value }]" :text="tab.label" @click="handleTabClick(tab.value)" :iconYn="false" />
     </div>
 
     <div class="todo-table-container">

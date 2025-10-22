@@ -3,10 +3,6 @@ import { ref, defineProps, defineEmits } from 'vue';
 import TheLoader from '@/components/common/TheLoader.vue';
 
 const props = defineProps({
-  class: {
-    type: String,
-    default: '' 
-  },
   text: {
     type: String,
     default: '' 
@@ -14,10 +10,6 @@ const props = defineProps({
   type: {
     type: String,
     default: 'button' 
-  },
-  class: {
-    type: String,
-    default: ''
   },
   disabled: {
     type: Boolean,
@@ -46,15 +38,15 @@ const handleClick = (event) => {
 </script>
 
 <template>
-  <!-- <TheButtom type="입력 필드 타입" class="클래스 속성" text="버튼 이름" @click="클릭이벤트" :iconYn="아이콘 여부-false는 생략가능" :loading="로딩 상태"/> -->
+  <!-- <TheButton type="입력 필드 타입" text="버튼 이름" @click="클릭이벤트" :iconYn="아이콘 여부-false는 생략가능" :loading="로딩 상태"/> -->
   
-  <button :type="type" :class="class" :disabled="disabled" @click="handleClick" v-if="iconYn" >
+  <button :type="type" :disabled="disabled" @click="handleClick" v-if="iconYn" >
     <span class="moon-icon">
       {{ text }}
     </span>
   </button>
 
-  <button :type="type" :class="class" :disabled="disabled" @click="handleClick" v-else>
+  <button :type="type" :disabled="disabled" @click="handleClick" v-else>
    {{ text }}
   </button>
 

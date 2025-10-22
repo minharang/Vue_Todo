@@ -1,6 +1,9 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 import { useTodoStore } from '@/stores/todo'; // Todo store import
+import TheInputBox from '@/components/common/TheInputBox.vue';
+import TheTextArea from '@/components/common/TheTextArea.vue';
+import TheButton from '@/components/common/TheButton.vue';
 
 const props = defineProps({
   isVisible: {
@@ -66,8 +69,9 @@ const createTodo = async () => {
         </div> -->
 
         <div class="form-row">
-          <label for="priority" class="form-label">우선순위</label>
-          <input type="text" id="priority" v-model="formData.priority" class="form-input">
+          <!--label for="priority" class="form-label">우선순위</!--label>
+          <input type="text" id="priority" v-model="formData.priority" class="form-input"-->
+          <TheInputBox id="priority" label="우선순위" placeholder="너는 내 맘속에 몇등이냣!" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
 
         <div class="form-row">
@@ -97,19 +101,23 @@ const createTodo = async () => {
         </div> -->
         
         <div class="form-row">
-          <label for="requester" class="form-label">요청자</label>
-          <input type="text" id="requester" v-model="formData.requester" class="form-input">
+          <!--label for="requester" class="form-label">요청자</!--label>
+          <input type="text" id="requester" v-model="formData.requester" class="form-input"-->
+          <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester" :srOnlyLabel="false" />
         </div>
 
         <div class="form-row textarea-row">
-          <label for="requestContent" class="form-label">요청 내용</label>
-          <textarea id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea>
+          <!--label for="requestContent" class="form-label">요청 내용</!--label>
+          <textarea-- id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea-->
+          <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :srOnlyLabel="false" :rows = "5"/>
         </div>
         </div>
 
       <div class="modal-footer">
-        <button class="button button-cancel" @click="closeModal">취소</button>
-        <button class="button button-create" @click="createTodo">생성</button>
+        <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
+        <TheButton type="button" class="button button-create" text="생성" @click="createTodo" :iconYn="false"/>
+        <!--button class="button button-cancel" @click="closeModal">취소</!--button>
+        <button-- class="button button-create" @click="createTodo">생성</button-->
       </div>
     </div>
   </div>

@@ -25,6 +25,10 @@ const props = defineProps({
   srOnlyLabel: {
     type: Boolean,
     default: false
+  },
+  labelNeed:{
+    type: Boolean,
+    default: true
   }
 });
 
@@ -38,7 +42,7 @@ const updateValue = (event) => {
 </script>
 <template>
 <!-- <TheInputBox id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" type="입력 필드 타입" v-model="modelValue" :srOnlyLabel="true" /> -->
-  <label :for="id" :class="{ 'sr-only': props.srOnlyLabel }">{{ label }}</label>
+  <label :for="id" :class="{ 'sr-only': props.srOnlyLabel, 'form-label': props.labelNeed}">{{ label }}</label>
       <input
         :type="type"
         :id="id"

@@ -13,6 +13,9 @@ app.use('/api/users', userRoutes);
 const todoRoutes = require('./routes/todo'); 
 app.use('/api/todos', todoRoutes); 
 
+const comcd = require('./routes/comcd');
+app.use('/api/comcd', comcd); 
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

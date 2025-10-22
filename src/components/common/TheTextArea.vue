@@ -14,7 +14,7 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  row: {
+  rows: {
     type: Number,
     default: 5
   },
@@ -33,15 +33,15 @@ const updateValue = (event) => {
 };
 </script>
 <template>
-<!-- <TheTextArea id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" v-model="modelValue" :srOnlyLabel="true" :row = "높이"/> -->
+<!-- <TheTextArea id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" v-model="modelValue" :srOnlyLabel="true" :rows = "높이"/> -->
   <label :for="id" class="form-label">{{ label }}</label>
     <textarea
         :id="id"
         :placeholder="placeholder"
         :value="modelValue"
-        :row = "row"
+        :rows = "rows"
         @input="updateValue"
-        class="fform-input textarea-input">
+        class="form-input textarea-input">
     </textarea>
 </template>
 <style scoped>
