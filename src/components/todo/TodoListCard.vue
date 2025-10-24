@@ -125,7 +125,7 @@ const calcDiffDays = (start, end) => {
 <template>
   <div class="card todo-list-card">
     <div class="card-header-with-button">
-      <h3 class="card-title">TODO 리스트</h3>
+      <h3 class="card-title">SR 리스트</h3>
       <!-- <button class="add-button" @click="addTodo">추가</button> -->
        <!-- <button @click="openCreateTodoModal" class="add-button open-modal-button">새 할 일 추가</button> -->
        <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>

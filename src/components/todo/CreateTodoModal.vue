@@ -61,13 +61,13 @@ const deleteTodo = async () => {
 
       <div class="modal-body">
          <!-- <div class="form-row">
-          <label class="form-label">중요도</label>
+          <label class="form-label">서비스유형</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="importance" value="low" v-model="formData.importance" class="radio-input"> 낮음
+              <input type="radio" name="importance" value="low" v-model="formData.importance" class="radio-input"> 기능개선
             </label>
             <label class="radio-label">
-              <input type="radio" name="importance" value="high" v-model="formData.importance" class="radio-input"> 높음
+              <input type="radio" name="importance" value="high" v-model="formData.importance" class="radio-input"> 업무지원/단순문의
             </label>
           </div>
         </div> -->

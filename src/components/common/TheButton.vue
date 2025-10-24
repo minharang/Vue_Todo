@@ -130,4 +130,32 @@ const handleClick = (event) => {
   background-color: #c0c0c0;
   color: #34495e;
 }
+
+.button-delete {
+  background-color: #dc3545; 
+  color: #fff;
+}
+
+.button-delete:hover {
+  background-color: #c82333;
+}
+
+.button-cancel {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+.button-cancel:hover {
+  background-color: #d0d0d0;
+}
+
+.button-create {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.button-create:hover {
+  background-color: #0056b3;
+}
+
 </style>

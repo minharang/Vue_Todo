@@ -5,6 +5,11 @@ import TheButton from '@/components/common/TheButton.vue';
 const router = useRouter();
 const currentRoute = useRoute();
 
+const goHomeRedirect = () => {
+  console.log("임쏘 단골멘트!!! HOME으로!!");
+  router.push('/Home');
+};
+
 const logoutAndRedirect = () => {
   console.log("로그아웃 처리 중...");
   // localStorage.removeItem('userToken'); 
@@ -16,7 +21,7 @@ const logoutAndRedirect = () => {
 <template>
   <header class="the-header" v-if="currentRoute.path !== '/'">
     <div class="header-left">
-      <div class="logo">📋TODO</div>
+      <div class="logo" @click="goHomeRedirect">📋TODO</div>
       <nav class="header-nav">
         <RouterLink to="/" class="nav-item">홈</RouterLink>
         <RouterLink to="/SRManager" class="nav-item">SR관리</RouterLink>
@@ -53,6 +58,7 @@ const logoutAndRedirect = () => {
   font-size: 24px;
   font-weight: bold;
   margin-right: 40px;
+  cursor: pointer;
 }
 
 .header-nav {

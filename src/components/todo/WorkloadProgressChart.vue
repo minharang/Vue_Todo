@@ -116,7 +116,7 @@ const centerTextPlugin = {
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  gap: 160px; /* <-- 간격을 120px에서 160px로 더 증가시켰습니다. */
+  gap: 160px;
   width: 100%; 
   max-width: none; 
   padding: 40px; 
@@ -189,7 +189,7 @@ const centerTextPlugin = {
 /* 반응형 */
 @media (max-width: 1200px) { 
     .performance-info-card {
-        gap: 120px; /* 1200px 이하에서 간격 조정 (기존 80px에서 120px로) */
+        gap: 120px;
         padding: 35px;
         min-height: 320px;
     }
@@ -212,7 +212,7 @@ const centerTextPlugin = {
 
 @media (max-width: 992px) { 
   .performance-info-card {
-    gap: 80px; /* 992px 이하에서 간격 조정 (기존 60px에서 80px로) */
+    gap: 80px; 
     padding: 30px;
     min-height: 300px;
   }
