@@ -1,9 +1,20 @@
 <script setup>
-// 필요한 경우, 메뉴 활성화 상태 관리 또는 로그아웃 로직 추가
+import { useRouter, useRoute } from 'vue-router';
+import TheButton from '@/components/common/TheButton.vue';
+
+const router = useRouter();
+const currentRoute = useRoute();
+
+const logoutAndRedirect = () => {
+  console.log("로그아웃 처리 중...");
+  // localStorage.removeItem('userToken'); 
+
+  router.replace('/');  
+};
 </script>
 
 <template>
-  <header class="the-header">
+  <header class="the-header" v-if="currentRoute.path !== '/'">
     <div class="header-left">
       <div class="logo">📋TODO</div>
       <nav class="header-nav">
@@ -14,9 +25,11 @@
       </nav>
     </div>
     <div class="header-right">
-      <button class="icon-button"><span class="moon-icon">🌙</span></button>
-      <button class="logout-button">로그아웃</button>
-      <RouterLink to="/Login" class="nav-item">임시 로그인</RouterLink> </div>
+      <!--button class="icon-button"><span class="moon-icon">🌙</span></!--button-->
+      <!--button class="logout-button">로그아웃</!--button>
+      <RouterLink-- to="/Login" class="nav-item">임시 로그인</RouterLink--> 
+      <TheButton type="button" class="logout-button" text="로그아웃" @click="logoutAndRedirect" v-if="currentRoute.path !== '/'"/>
+    </div>
   </header>
 </template>
 

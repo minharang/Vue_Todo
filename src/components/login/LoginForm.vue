@@ -30,7 +30,7 @@ const handleLogin = () => {
   if (user) {
     // 1. 로그인 성공 시
     alert(`${user.userId}님, 로그인 성공!`);
-    router.push('/');   
+    router.push('/Home');   
   } else {
     alert(`로그인 실패!`);
     return;
