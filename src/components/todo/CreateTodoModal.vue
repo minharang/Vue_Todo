@@ -15,17 +15,15 @@ const props = defineProps({
 const emit = defineEmits(['close', 'create']);
 
 const formData = ref({
-  importance: 'low',
   priority: '',
-  regDate: '',
-  regDateEnd: '', // 등록일 옆에 하나 더 있는 입력 필드
-  completionDate: '',
-  remindCompletionDate: '',
-  mistranslation: '',
-  effortTime: '',
-  noteEffortTime: '', // 기입할 공수시간
+  startDt: '',
+  completedDt: '',
   requester: '',
-  requestContent: '' // 새로 추가된 요청 내용 필드
+  srno: '',
+  requestTitle: '',
+  requestContent: '',
+  status: '',
+  userId: '' 
 });
 
 const closeModal = () => {
@@ -43,6 +41,12 @@ const createTodo = async () => {
   await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('create', formData.value);
   closeModal(); // 생성 후 모달 닫기
+};
+
+const deleteTodo = async () => {
+  console.log('할 일 삭제 데이터:', formData.value);
+  // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
+   closeModal(); // 생성 후 모달 닫기
 };
 
 </script>
@@ -75,16 +79,20 @@ const createTodo = async () => {
         </div>
 
         <div class="form-row">
-          <label for="regDate" class="form-label">등록일</label>
+          <!--label for="regDate" class="form-label">등록일</label>
           <div class="input-with-icon">
             <input type="date" id="regDate" v-model="formData.regDate" class="form-input date-input">
              <input type="date" id="regDateEnd" v-model="formData.regDateEnd" class="form-input date-input ml-10">
-          </div>
+          </div-->
+
+          <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
+
         </div>
 
         <div class="form-row">
-          <label for="completionDate" class="form-label">완료일</label>
-          <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input">
+          <!--label for="completionDate" class="form-label">완료일</label>
+          <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input"-->
+          <TheInputBox id="dueDt" label="목표완료일" type="date" v-model="formData.dueDt"/>
         </div>
         
         <!-- <div class="form-row">
@@ -103,19 +111,35 @@ const createTodo = async () => {
         <div class="form-row">
           <!--label for="requester" class="form-label">요청자</!--label>
           <input type="text" id="requester" v-model="formData.requester" class="form-input"-->
-          <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester" :srOnlyLabel="false" />
+          <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester"/>
+        </div>
+
+        <div class="form-row">
+          <TheInputBox id="srno" label="SR번호" placeholder="몰라!!!!"  type="text"  v-model="formData.srno" />
+        </div>
+
+        <div class="form-row">
+          <TheInputBox id="requestTitle" label="제목" placeholder="누구겠니"  type="text"  v-model="formData.requestTitle" />
         </div>
 
         <div class="form-row textarea-row">
           <!--label for="requestContent" class="form-label">요청 내용</!--label>
           <textarea-- id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea-->
-          <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :srOnlyLabel="false" :rows = "5"/>
+          <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :rows = "5"/>
         </div>
-        </div>
+      </div>
+
+      <!--그 외 hidden으로 데이터 넘겨야하는 값들-->
+      <TheInputBox id="status" label="상태" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.status"/>
+      <TheInputBox id="userId" label="사용자id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.userId"/>
 
       <div class="modal-footer">
+        <!--todo_id 값 유무에 따라 삭제버튼 노출-->
+        <TheButton type="button" class="button button-delete" text="삭제" @click="deleteTodo" :iconYn="false"/>
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
-        <TheButton type="button" class="button button-create" text="생성" @click="createTodo" :iconYn="false"/>
+        <!--todo_id 값 유무에 따라 생성 / 수정 텍스트 노출-->
+        <TheButton type="button" class="button button-create" text="생성/수정" @click="createTodo" :iconYn="false"/>
+        
         <!--button class="button button-cancel" @click="closeModal">취소</!--button>
         <button-- class="button button-create" @click="createTodo">생성</button-->
       </div>
@@ -344,12 +368,21 @@ const createTodo = async () => {
 }
 
 .button-create {
-  background-color: #007bff; /* 이미지 상의 파란색 버튼 */
+  background-color: #007bff;
   color: #fff;
 }
 
 .button-create:hover {
   background-color: #0056b3;
+}
+
+.button-delete {
+  background-color: #dc3545; 
+  color: #fff;
+}
+
+.button-delete:hover {
+  background-color: #c82333;
 }
 
 /* 미디어 쿼리 (모바일 반응형) */
@@ -405,4 +438,5 @@ const createTodo = async () => {
     min-height: 100px; /* 모바일에서 최소 높이 증가 */
   }
 }
+
 </style>

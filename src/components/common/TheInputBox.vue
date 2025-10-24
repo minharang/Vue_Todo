@@ -43,15 +43,15 @@ const updateValue = (event) => {
 <template>
 <!-- <TheInputBox id="필수 속성" label="라벨 텍스트" placeholder="플레이스홀더" type="입력 필드 타입" v-model="modelValue" :srOnlyLabel="true" /> -->
   <label :for="id" :class="{ 'sr-only': props.srOnlyLabel, 'form-label': props.labelNeed}">{{ label }}</label>
-      <input
-        :type="type"
-        :id="id"
-        :placeholder="placeholder"
-        :value="modelValue"
-        @input="updateValue"
-        class="form-input"
+    <input
+      :type="type"
+      :id="id"
+      :placeholder="placeholder"
+      :value="modelValue"
+      @input="updateValue"
+      class="form-input"
   />
-</template>
+ </template>
 <style scoped>
 .form-label {
   flex-basis: 120px; /* 라벨 고정 너비 */
@@ -84,4 +84,5 @@ const updateValue = (event) => {
 .sr-only {
   display:none;
 }
+
 </style>

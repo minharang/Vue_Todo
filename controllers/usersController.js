@@ -2,7 +2,7 @@ const pool = require('../pool');
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM mingji'); 
+        const [rows] = await pool.query('SELECT * FROM users'); 
         res.json(rows);
     } catch (err) {
         console.error('Error fetching users:', err);
@@ -13,7 +13,7 @@ exports.getAllUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
     const { name, email } = req.body;
     try {
-        const [result] = await pool.query('INSERT INTO mingji (seq, hello) VALUES (?, ?)', [seq, hello]);
+        const [result] = await pool.query('INSERT INTO users (user_id, user_name) VALUES (?, ?)', [seq, hello]);
         res.status(201).json({ 
             message: '사용자 생성 성공', 
             hello: result.hello 

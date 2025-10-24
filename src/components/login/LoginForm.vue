@@ -3,10 +3,15 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import MembershipFormModal from '../userMng/MembershipForm.vue'; 
 import usersData from '../../data/users.json';
+import TheInputBox from '@/components/common/TheInputBox.vue';
+import TheButton from '@/components/common/TheButton.vue';
+import TheCheckBox from '@/components/common/TheCheckBox.vue';
 
 const router = useRouter();
-const username = ref('');
-const password = ref('');
+const formData = ref({
+  userId: '',
+  password: ''
+});
 const rememberMe = ref(false);
 const isModalVisible = ref(false);
 
@@ -18,13 +23,13 @@ const closeMembershipFormModal = () => {
   isModalVisible.value = false;
 };
 const handleLogin = () => {
-  const user = usersData.find(u => u.username === username.value && u.password === password.value);
+  const user = usersData.find(u => u.userId === userId.value && u.password === password.value);
   // console.log('로그인 시도:', { username: username.value, password: password.value, rememberMe: rememberMe.value });
   // 여기에 실제 로그인 로직 (API 호출 등)을 추가합니다.
   // alert('로그인 시도! (콘솔 확인)');
   if (user) {
     // 1. 로그인 성공 시
-    alert(`${user.username}님, 로그인 성공!`);
+    alert(`${user.userId}님, 로그인 성공!`);
     router.push('/');   
   } else {
     alert(`로그인 실패!`);
@@ -39,27 +44,29 @@ const handleLogin = () => {
 
     <form @submit.prevent="handleLogin" class="login-form">
       <div class="form-group">
-        <label for="username" class="sr-only">아이디</label> <input
+        <!--label for="username" class="sr-only">아이디</label> <input
           type="text"
           id="username"
           v-model="username"
           placeholder="아이디"
           class="form-input"
-        />
+        /-->
+        <TheInputBox id="userId" label="아이디" placeholder="아이디" type="text" v-model="formData.userId" :srOnlyLabel="true"/>
       </div>
 
       <div class="form-group">
-        <label for="password" class="sr-only">비밀번호</label>
+        <!--label for="password" class="sr-only">비밀번호</label>
         <input
           type="password"
           id="password"
           v-model="password"
           placeholder="비밀번호"
           class="form-input"
-        />
+        /-->
+        <TheInputBox id="password" label="비밀번호" placeholder="비밀번호" type="password" v-model="formData.password" :srOnlyLabel="true"/>
       </div>
 
-      <div class="form-group-checkbox">
+      <!--div class="form-group-checkbox">
         <input
           type="checkbox"
           id="rememberMe"
@@ -67,9 +74,10 @@ const handleLogin = () => {
           class="form-checkbox"
         />
         <label for="rememberMe" class="checkbox-label">로그인 상태 유지</label>
-      </div>
-
-      <button type="submit" class="login-button">로그인</button>
+        </div-->
+      <TheCheckBox id="rememberMe" label="로그인 상태 유지" v-model="rememberMe" />
+      
+      <TheButton type="submit" class="login-button" text="로그인"/>
     </form>
 
     <div class="login-links">
