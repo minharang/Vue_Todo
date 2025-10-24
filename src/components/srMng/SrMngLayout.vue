@@ -1,16 +1,44 @@
 <script setup>
+import { ref } from 'vue'
+import TheButton from '@/components/common/TheButton.vue'
+import SrSearchForm from './SrSearchForm.vue';
+import SrList from './SrList.vue';
 
+const users = ref([
+  { id: 1, name: '홍길동', email: 'hong@test.com', dept: '개발팀', position: '사원', role: '일반', joinDate: '2023-01-10', active: true },
+  { id: 2, name: '김지현', email: 'kim@test.com', dept: '운영팀', position: '대리', role: '관리자', joinDate: '2022-08-20', active: false },
+])
+
+const filteredUsers = ref([...users.value])
+
+const handleSearch = (conditions) => {
+  filteredUsers.value = users.value.filter((u) => {
+    const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
+    const deptMatch = conditions.dept ? u.dept === conditions.dept : true
+    const roleMatch = conditions.role ? u.role === conditions.role : true
+    const activeMatch = conditions.active ? u.active : true
+    return textMatch && deptMatch && roleMatch && activeMatch
+  })
+}
+
+const addUser = () => {
+  alert('사용자 추가 기능 준비 중입니다.')
+}
 </script>
 
 <template>
   <div class="dashboard-layout">
-    <!-- 라우터 적용위한 헤더 App.vue로 이동 -->
-    <!-- <TheHeader /> -->
     <div class="dashboard-content-wrapper">
-      <!-- <TheSidebar /> -->
       <main class="main-content-area">
-        <!-- <WorkEffortCard /> develop 할때 개발-->
-        
+        <div class="card user-management-card">
+            <div class="card-header-with-button">
+                <h3 class="card-title">SR 관리</h3>
+                <TheButton class="add-button" text="SR 추가" @click="addUser" :iconYn="false" /> <!--todo등록 폼...? 넣으면 될듯-->
+            </div>
+
+            <SrSearchForm @search="handleSearch" />
+            <SrList :users="filteredUsers" />
+        </div>
       </main>
     </div>
   </div>
@@ -42,5 +70,21 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+.user-management-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+}
+.card-header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 </style>
