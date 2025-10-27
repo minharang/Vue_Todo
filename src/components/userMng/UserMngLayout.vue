@@ -5,19 +5,20 @@ import UserSearchForm from './UserSearchForm.vue';
 import UserList from './UserList.vue';
 
 const users = ref([
-  { id: 1, name: '홍길동', email: 'hong@test.com', dept: '개발팀', position: '사원', role: '일반', joinDate: '2023-01-10', active: true },
-  { id: 2, name: '김지현', email: 'kim@test.com', dept: '운영팀', position: '대리', role: '관리자', joinDate: '2022-08-20', active: false },
+  { userId: 1, userName: '밍밍`', email: 'ming@cj.net', deptId: '대한통운 WMS팀', authGrpId: '일반', lastLoginedDt: '2025-01-01 00:00:00', lockedYn: true },
+  { userId: 2, userName: '밍밍2', email: 'ming.ming@cj.net', deptId: '대한통운 TCS팀',  authGrpId: '관리자', lastLoginedDt: '2025.10.27 15:30:00', lockedYn: false },
 ])
 
 const filteredUsers = ref([...users.value])
 
 const handleSearch = (conditions) => {
   filteredUsers.value = users.value.filter((u) => {
-    const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
-    const deptMatch = conditions.dept ? u.dept === conditions.dept : true
-    const roleMatch = conditions.role ? u.role === conditions.role : true
-    const activeMatch = conditions.active ? u.active : true
-    return textMatch && deptMatch && roleMatch && activeMatch
+    // const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
+    // const deptMatch = conditions.dept ? u.dept === conditions.dept : true
+    // const roleMatch = conditions.role ? u.role === conditions.role : true
+    // const activeMatch = conditions.active ? u.active : true
+    // return textMatch && deptMatch && roleMatch && activeMatch
+    return '';
   })
 }
 
