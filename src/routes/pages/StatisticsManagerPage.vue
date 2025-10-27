@@ -1,14 +1,6 @@
 <script setup>
-// 필요한 경우, 메뉴 활성화 상태 관리 또는 로그아웃 로직 추가
+import StaticsMng from '@/components/staticsMng/StaticsMngLayout.vue';
 </script>
 <template>
-  <div style="color: #B3E5FC;">
-    <h1>StatisticsManager Page!</h1>
-    <div style="height: 1500px;">
-      <!-- 이 영역으로 임의로 높이 및 배경 채우기 -->
-      <p>예시1</p>
-      <p>예시2</p>
-      <p>...</p>
-    </div>
-  </div>  
+  <StaticsMng />
 </template>

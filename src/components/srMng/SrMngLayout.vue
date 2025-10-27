@@ -4,25 +4,26 @@ import TheButton from '@/components/common/TheButton.vue'
 import SrSearchForm from './SrSearchForm.vue';
 import SrList from './SrList.vue';
 
-const users = ref([
-  { id: 1, name: '홍길동', email: 'hong@test.com', dept: '개발팀', position: '사원', role: '일반', joinDate: '2023-01-10', active: true },
-  { id: 2, name: '김지현', email: 'kim@test.com', dept: '운영팀', position: '대리', role: '관리자', joinDate: '2022-08-20', active: false },
+const srs = ref([
+  { todoId: 1, srno:'ServIn1234', requester: '서뚜기', requestTitle: 'dduck@cj.net닷!!', status: '1111', priority: 1, startDt: '2025-10-27', completedDt: '', active: true },
+  { todoId: 2, srno:'ServIn1235', requester: '성뚜기', requestTitle: 'baegi@cj.net닷!!!', status: '1111', priority: 2, startDt: '2025-10-20', completedDt: '2025-10-27', active: false },
 ])
 
-const filteredUsers = ref([...users.value])
+const filteredSrs = ref([...srs.value])
 
 const handleSearch = (conditions) => {
-  filteredUsers.value = users.value.filter((u) => {
-    const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
-    const deptMatch = conditions.dept ? u.dept === conditions.dept : true
-    const roleMatch = conditions.role ? u.role === conditions.role : true
-    const activeMatch = conditions.active ? u.active : true
-    return textMatch && deptMatch && roleMatch && activeMatch
+  filteredSrs.value = srs.value.filter((u) => {
+    // const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
+    // const deptMatch = conditions.dept ? u.dept === conditions.dept : true
+    // const roleMatch = conditions.role ? u.role === conditions.role : true
+    // const activeMatch = conditions.active ? u.active : true
+    // return textMatch && deptMatch && roleMatch && activeMatch
+    return ''
   })
 }
 
-const addUser = () => {
-  alert('사용자 추가 기능 준비 중입니다.')
+const addSr = () => {
+  alert('SR 추가 기능 준비 중입니다.')
 }
 </script>
 
@@ -33,11 +34,11 @@ const addUser = () => {
         <div class="card user-management-card">
             <div class="card-header-with-button">
                 <h3 class="card-title">SR 관리</h3>
-                <TheButton class="add-button" text="SR 추가" @click="addUser" :iconYn="false" /> <!--todo등록 폼...? 넣으면 될듯-->
+                <TheButton class="add-button" text="SR 추가" @click="addSr" :iconYn="false" /> <!--todo등록 폼...? 넣으면 될듯-->
             </div>
 
             <SrSearchForm @search="handleSearch" />
-            <SrList :users="filteredUsers" />
+            <SrList :srs="filteredSrs" />
         </div>
       </main>
     </div>
