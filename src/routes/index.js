@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, routerKey } from 'vue-router'
+import { createRouter, createWebHistory, routerKey } from 'vue-router'  /* 설치: npm i vue-router */
 import HomePage from '@/routes/pages/HomePage.vue'
 import SRManagerPage from '@/routes/pages/SRManagerPage.vue'
 import StatisticsManagerPage from '@/routes/pages/StatisticsManagerPage.vue'
