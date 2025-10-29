@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed , onMounted } from 'vue';
 import TheButton from '@/components/common/TheButton.vue';
-import CreateTodoModal from '../todo/CreateTodoModal.vue';
+import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
+import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import axios from 'axios';
 const API_BASE_URL = 'http://localhost:3000'; 
 
@@ -96,14 +97,14 @@ const getTodoStatusClass = (status) => {
   }
 };
 
-const isModalVisible = ref(false);
+const isCreateModalVisible = ref(false);
 
 const openCreateTodoModal = () => {
-  isModalVisible.value = true;
+  isCreateModalVisible.value = true;
 };
 
 const closeCreateTodoModal = () => {
-  isModalVisible.value = false;
+  isCreateModalVisible.value = false;
 };
 
 const handleCreateTodo = (formData) => {
@@ -111,6 +112,35 @@ const handleCreateTodo = (formData) => {
   // 여기에 실제 할 일 목록에 데이터를 추가하는 로직을 구현합니다.
   alert('할 일이 성공적으로 생성되었습니다!');
 };
+
+const isModifyModalVisible = ref(false);
+const selectedTodoId = ref(null);
+
+const openModifyTodoModal = (todo_id = null) => {
+  try {
+    if (todo_id === null || todo_id === undefined) {
+      console.log('안들어왔어 todo_id');
+      selectedTodoId.value = '1';
+    } else {
+      console.log('todo_id 잘 들어왔니 : ' + todo_id);
+      selectedTodoId.value = todo_id;
+    }
+    isModifyModalVisible.value = true;
+        
+  } catch (error) {
+    console.error('openModifyTodoModal 실행 중 처리되지 않은 오류 발생:', error);
+  }
+};
+
+const closeModifyTodoModal = () => {
+  isModifyModalVisible.value = false;
+};
+
+const handleModifyTodo = (formData) => {
+  console.log('할 일 저장 완료!:', formData);
+  alert('할 일이 성공적으로 저장되었습니다!');
+};
+
 const calcDiffDays = (start, end) => {
   if (!end) return ''
   if (!start) return ''
@@ -128,8 +158,12 @@ const calcDiffDays = (start, end) => {
       <h3 class="card-title">SR 리스트</h3>
       <!-- <button class="add-button" @click="addTodo">추가</button> -->
        <!-- <button @click="openCreateTodoModal" class="add-button open-modal-button">새 할 일 추가</button> -->
-       <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>
-       <CreateTodoModal :isVisible="isModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
+        <div>
+        <TheButton type="button" class="add-button open-modal-button" text="수정" @click="openModifyTodoModal('1')" :iconYn="false"/>
+        <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />
+        <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>
+        <CreateTodoModal :isVisible="isCreateModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
+       </div>
     </div>
 
     <div class="tab-buttons">

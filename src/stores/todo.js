@@ -29,7 +29,7 @@ export const useTodoStore = defineStore('todo', {
       this.loading = true
       this.error = null
       try {
-        const res = await fetch(`http://localhost:3000/todos/${updatedTodo.id}`, {
+        const res = await fetch(`http://localhost:3000/todos/${updatedTodo.todo_id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedTodo),
@@ -37,7 +37,7 @@ export const useTodoStore = defineStore('todo', {
         if (!res.ok) throw new Error('수정 실패')
         const data = await res.json()
         // 기존 todos 배열에서 해당 항목을 찾아 교체
-        const idx = this.todos.findIndex(t => t.id === updatedTodo.id)
+        const idx = this.todos.findIndex(t => t.todo_id === updatedTodo.todo_id)
         if (idx !== -1) this.todos[idx] = data
       } catch (e) {
         this.error = e
@@ -45,16 +45,16 @@ export const useTodoStore = defineStore('todo', {
         this.loading = false
       }
     },
-    async deleteTodo(id) {
+    async deleteTodo(todo_id) {
       this.loading = true
       this.error = null
       try {
-        const res = await fetch(`http://localhost:3000/todos/${id}`, {
+        const res = await fetch(`http://localhost:3000/todos/${todo_id}`, {
           method: 'DELETE',
         })
         if (!res.ok) throw new Error('삭제 실패')
         // 삭제 성공 시 todos 배열에서 제거
-        this.todos = this.todos.filter(t => t.id !== id)
+        this.todos = this.todos.filter(t => t.todo_id !== todo_id)
       } catch (e) {
         this.error = e
       } finally {

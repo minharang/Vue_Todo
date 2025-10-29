@@ -29,14 +29,14 @@ exports.createTodo = async (req, res) => {
 
   try {
     const sql = `INSERT INTO todoboard
-      (todo_id, start_dt, due_dt, completed_dt, requester, srno, request_title, request_content, status, user_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      (priority, start_dt, due_dt, completed_dt, requester, srno, request_title, request_content, status, user_id)
+      VALUES (?, COALESCE(NULLIF(?, ''), CURDATE()), ?, ?, ?, ?, ?, ?, ?, ?)`;
     const [result] = await pool.query(sql, [
       priority, startDt, dueDt, completionDate,
       requester, srno, requestTitle, requestContent, status, userId
     ]);
 
-    const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [result.insertId]);
+    const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [result.todo_id]);
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -45,20 +45,22 @@ exports.createTodo = async (req, res) => {
 };
 
 exports.updateTodo = async (req, res) => {
-  const id = req.params.id;
-  const updates = req.body;
+  const {
+    priority, startDt, dueDt, completionDate,
+    requester, srno, requestTitle, requestContent, status, userId, todo_id
+  } = req.body;
+
   try {
-    const fields = [];
-    const values = [];
-    Object.keys(updates).forEach(key => {
-      fields.push(`${key} = ?`);
-      values.push(updates[key]);
-    });
-    if (fields.length === 0) return res.status(400).json({ message: '업데이트할 데이터 없음' });
-    values.push(id);
-    const sql = `UPDATE todoboard SET ${fields.join(', ')} WHERE todo_id = ?`;
-    await pool.query(sql, values);
-    const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [id]);
+    const sql = `update todoboard
+                    set priority = ? , start_dt = COALESCE(NULLIF(?, ''), CURDATE()) , due_dt = ? , completed_dt = ? 
+                      , requester = ? , srno = ? , request_title = ? , request_content = ?
+                      , status = ? , user_id = ?
+                  where todo_id = ?`;
+    const [result] = await pool.query(sql, [
+      priority, startDt, dueDt, completionDate,
+      requester, srno, requestTitle, requestContent, status, userId, todo_id
+    ]);
+    const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [todo_id]);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits, watchEffect } from 'vue';
 import { useTodoStore } from '@/stores/todo'; // Todo store import
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
@@ -9,12 +9,17 @@ const props = defineProps({
   isVisible: {
     type: Boolean,
     default: false
+  },
+  todo_id: {
+    type: String,
+    default: 1
   }
 });
 
-const emit = defineEmits(['close', 'create']);
+const emit = defineEmits(['close', 'update']);
 
 const formData = ref({
+  todo_id : '',
   priority: '',
   startDt: '',
   completedDt: '',
@@ -26,25 +31,47 @@ const formData = ref({
   userId: '' 
 });
 
+watchEffect(async () => {
+  if (props.isVisible && props.todo_id) {
+      formData.value.todo_id = props.todo_id; 
+      try {
+          const response = await fetchTodoDetail(props.todo_id);
+          formData.value.requestTitle = response.requestTitle;
+          formData.value.requestContent = response.requestContent;
+          // ... 나머지 필드 채우기 ...
+
+      } catch (error) {
+          console.log(`${props.todo_id} 상세 정보를 가져오는데 실패했습니다.`, error);
+      }
+  } else if (props.isVisible && !props.todo_id) {
+    //todo_id 없이 모달열림
+  }
+});
+
+const fetchTodoDetail = async (todo_id) => {
+    const response = await fetch(`/api/todos/${todo_id}`);
+    return response.json(); 
+};
+
 const closeModal = () => {
   emit('close');
 };
 
 const todoStore = useTodoStore()
 
-const createTodo = async () => {
-  console.log('할 일 생성 데이터:', formData.value);
+const modifyTodo = async () => {
+  console.log('할 일 저장 데이터:', formData.value);
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
-  await todoStore.createTodo(formData.value) // fetch로 등록
-  // await todoStore.updateTodo(수정할데이터)
+   await todoStore.updateTodo(formData.value)
   // await todoStore.deleteTodo(할일ID)
   await todoStore.fetchTodos() // 할 일 목록 새로고침
-  emit('create', formData.value);
-  closeModal(); // 생성 후 모달 닫기
+  emit('update', formData.value);
+  closeModal();
 };
 
 const deleteTodo = async () => {
   console.log('할 일 삭제 데이터:', formData.value);
+  await todoStore.deleteTodo(할일ID)
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
    closeModal(); // 생성 후 모달 닫기
 };
@@ -55,7 +82,7 @@ const deleteTodo = async () => {
   <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-container">
       <div class="modal-header">
-        <h2 class="modal-title">할 일 생성</h2>
+        <h2 class="modal-title">할 일 수정</h2>
         <button class="close-button" @click="closeModal">&times;</button>
       </div>
 
@@ -71,7 +98,6 @@ const deleteTodo = async () => {
             </label>
           </div>
         </div> -->
-
         <div class="form-row">
           <!--label for="priority" class="form-label">우선순위</!--label>
           <input type="text" id="priority" v-model="formData.priority" class="form-input"-->
@@ -132,13 +158,15 @@ const deleteTodo = async () => {
       <!--그 외 hidden으로 데이터 넘겨야하는 값들-->
       <TheInputBox id="status" label="상태" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.status"/>
       <TheInputBox id="userId" label="사용자id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.userId"/>
+      <TheInputBox id="todo_id" label="todo_id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.todo_id"/>
 
       <div class="modal-footer">
+        <!--todo_id 값 유무에 따라 삭제버튼 노출-->
+        <TheButton type="button" class="button button-delete" text="삭제" @click="deleteTodo" :iconYn="false"/>
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
-        <TheButton type="button" class="button button-create" text="생성" @click="createTodo" :iconYn="false"/>
+        <!--todo_id 값 유무에 따라 생성 / 수정 텍스트 노출-->
+        <TheButton type="button" class="button button-create" text="저장" @click="modifyTodo" :iconYn="false"/>
         
-        <!--button class="button button-cancel" @click="closeModal">취소</!--button>
-        <button-- class="button button-create" @click="createTodo">생성</button-->
       </div>
     </div>
   </div>
