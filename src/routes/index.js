@@ -27,7 +27,9 @@ const router = createRouter({
     {
       path: '/AccountManager',
       component: AccountManagerPage
-    }
+    },
+    // 잘못된 경로가 들어오면 홈으로 리다이렉트
+    { path: '/:pathMatch(.*)*', redirect: '/Home' }
   ]
 })
 
