@@ -33,4 +33,11 @@ const router = createRouter({
   ]
 })
 
+// 라우터 네비게이션 에러 핸들러
+router.onError((error) => {
+  console.error('Router error:', error)
+  // 네비게이션 에러 발생 시 홈으로 이동(또는 사용자 알림)
+  router.push('/Home').catch(() => {})
+})
+
 export default router

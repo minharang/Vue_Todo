@@ -23,6 +23,12 @@
       </div>
     </div>
   </div>
+  <!-- 에러 발생 버튼 추가 -->
+  <!--
+  <button @click="causeError" style="margin-top:20px;padding:10px 20px;font-weight:bold;color:#fff;background:#ef4444;border-radius:6px;border:none;cursor:pointer;">
+    에러 발생 테스트
+  </button>
+  -->
 </template>
 
 <script setup>
@@ -100,6 +106,11 @@ const centerTextPlugin = {
     ctx.save();
   },
 };
+
+// 에러 핸들러 테스트용 버튼 함수
+function causeError() {
+  throw new Error("테스트용 고의 에러 발생!");
+}
 </script>
 
 <style scoped>

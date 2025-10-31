@@ -1,11 +1,27 @@
 <script setup>
 import TheHeader from '@/components/common/TheHeader.vue';
 import { RouterView } from 'vue-router';
+import ErrorBoundary from '@/components/common/ErrorBoundary.vue'
+import { computed } from 'vue'
+import { useErrorStore } from '@/stores/errorStore'
+
+const errorStore = useErrorStore()
+const error = computed(() => errorStore.lastError)
+const clearError = () => errorStore.clearError()
 </script>
 
 <template>
   <TheHeader />
-  <RouterView />
+
+  <ErrorBoundary>
+    <RouterView />
+  </ErrorBoundary>
+
+  <!-- 전역 에러 UI: Pinia error store에서 표시 -->
+  <div v-if="error" class="global-error">
+    <p>{{ error.message }}</p>
+    <button @click="clearError">닫기</button>
+  </div>
 </template>
 
 <style scoped>
@@ -37,6 +53,8 @@ h1 {
 }
 
 .open-modal-button:hover {
-  background-color: #218838;
+  background-color: #218838;  
 }
+
+.global-error { position:fixed; bottom:16px; right:16px; background:#222; color:#fff; padding:10px; border-radius:6px; }
 </style>
