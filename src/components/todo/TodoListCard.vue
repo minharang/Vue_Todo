@@ -12,7 +12,7 @@ const GRP_ID_FOR_TABS = 'S001';
 
 const fetchStatus = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/comcd/${GRP_ID_FOR_TABS}`); 
+        const response = await axios.get(`${API_BASE_URL}/api/com/${GRP_ID_FOR_TABS}`); 
         console.log(response.data);
         
          const fetchedTabs = response.data.map(item => ({

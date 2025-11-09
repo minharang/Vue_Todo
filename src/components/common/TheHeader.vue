@@ -1,20 +1,27 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
+import { useLoginStore } from '@/stores/login'; 
 import TheButton from '@/components/common/TheButton.vue';
 
 const router = useRouter();
 const currentRoute = useRoute();
+const loginStore = useLoginStore();
 
 const goHomeRedirect = () => {
   console.log("임쏘 단골멘트!!! HOME으로!!");
   router.push('/Home');
 };
 
-const logoutAndRedirect = () => {
+const logoutAndRedirect = async() => {
   console.log("로그아웃 처리 중...");
-  // localStorage.removeItem('userToken'); 
-
-  router.replace('/');  
+  try {
+    await loginStore.logoutUser();
+    router.replace('/'); 
+    console.log("로그아웃 완료 및 페이지 이동");
+  } catch (error) {
+    console.error("로그아웃 처리 중 오류 발생:", error);
+    router.replace('/');
+  }
 };
 </script>
 

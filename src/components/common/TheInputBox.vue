@@ -63,7 +63,7 @@ const updateValue = (event) => {
 }
 
 .form-input {
-  width: calc(100% - 20px); /* 패딩 고려 */
+  width: calc(100% - 40px); /* 패딩 고려 */
   padding: 12px 20px;
   border: 1px solid #ddd;
   border-radius: 6px; /* 입력 필드 모서리 둥글게 */

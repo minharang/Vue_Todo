@@ -1,13 +1,16 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import MembershipFormModal from '../userMng/MembershipForm.vue'; 
-import usersData from '../../data/users.json';
+import { useLoginStore } from '@/stores/login'; 
+import MembershipFormModal from '@/components/userMng/MembershipForm.vue'; 
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheButton from '@/components/common/TheButton.vue';
 import TheCheckBox from '@/components/common/TheCheckBox.vue';
 
 const router = useRouter();
+
+const loginStore = useLoginStore();
+
 const formData = ref({
   userId: '',
   password: ''
@@ -22,19 +25,26 @@ const openMembershipFormModal = () => {
 const closeMembershipFormModal = () => {
   isModalVisible.value = false;
 };
-const handleLogin = () => {
-  const user = usersData.find(u => u.userId === userId.value && u.password === password.value);
+const handleLogin = async() => {
+  //const user = usersData.find(u => u.userId === userId.value && u.password === password.value);
   // console.log('로그인 시도:', { username: username.value, password: password.value, rememberMe: rememberMe.value });
   // 여기에 실제 로그인 로직 (API 호출 등)을 추가합니다.
   // alert('로그인 시도! (콘솔 확인)');
-  if (user) {
-    // 1. 로그인 성공 시
-    alert(`${user.userId}님, 로그인 성공!`);
-    router.push('/Home');   
-  } else {
-    alert(`로그인 실패!`);
-    return;
-  }
+
+  try {
+    const result = await loginStore.loginUser({
+      userId: formData.value.userId,
+      password: formData.value.password
+    });
+    
+    if (result && result.success) {
+      router.push('/Home'); 
+    }
+
+  } catch (error) {
+     alert(`로그인 실패!`);
+     return;
+  } 
 };
 
 const TBD = () => {
@@ -79,9 +89,12 @@ const TBD = () => {
         />
         <label for="rememberMe" class="checkbox-label">로그인 상태 유지</label>
         </div-->
-      <TheCheckBox id="rememberMe" label="로그인 상태 유지" v-model="rememberMe" />
+      <!-- <TheCheckBox id="rememberMe" label="로그인 상태 유지" v-model="rememberMe" /> TODO 기능 -->
       
       <TheButton type="submit" class="login-button" text="로그인"/>
+      <div v-if="loginStore.loginError" class="error-message">
+      {{ loginStore.loginError }} 
+    </div>
     </form>
 
     <div class="login-links">
@@ -118,7 +131,7 @@ const TBD = () => {
 }
 
 .form-input {
-  width: calc(100% - 20px); /* 패딩 고려 */
+  width: calc(100% - 40px); /* 패딩 고려 */
   padding: 12px 20px;
   border: 1px solid #ddd;
   border-radius: 6px; /* 입력 필드 모서리 둥글게 */

@@ -4,20 +4,20 @@ import { onMounted } from 'vue';
 import axios from 'axios';
 // import TheHeader from './TheHeader.vue'; // 헤더 컴포넌트가 있다면 임포트
 
-const API_BASE_URL = 'http://localhost:3000'; 
-const fetchUsers = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/api/users`); 
+// const API_BASE_URL = 'http://localhost:3000'; 
+// const fetchUsers = async () => {
+//     try {
+//         const response = await axios.get(`${API_BASE_URL}/api/users`); 
         
-        console.log(response.data);
-        //users.value = response.data; 
+//         console.log(response.data);
+//         //users.value = response.data; 
 
-    } catch (err) {
-        console.error('사용자 목록을 불러오는 데 실패했습니다:', err);
-    } 
-};
+//     } catch (err) {
+//         console.error('사용자 목록을 불러오는 데 실패했습니다:', err);
+//     } 
+// };
 
-onMounted(fetchUsers); 
+// onMounted(fetchUsers); 
 
 </script>
 
