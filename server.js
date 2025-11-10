@@ -2,7 +2,7 @@
 require('module-alias/register');
 const express = require('express');
 const cors = require('cors'); 
-const session = require('express-session'); //TODO. 설치 알려줄것!!!npm install express-session
+const session = require('express-session');
 const app = express();
 const PORT = 3000; 
 
