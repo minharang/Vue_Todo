@@ -26,6 +26,19 @@ const formData = ref({
   userId: '' 
 });
 
+const initialFormData = { // 폼 초기화
+  todo_id : null,
+  priority: '',
+  startDt: '',
+  completedDt: '',
+  requester: '',
+  srno: '',
+  requestTitle: '',
+  requestContent: '',
+  status: '',
+  userId: '' 
+};
+
 const closeModal = () => {
   emit('close');
 };
@@ -36,8 +49,7 @@ const createTodo = async () => {
   console.log('할 일 생성 데이터:', formData.value);
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
   await todoStore.createTodo(formData.value) // fetch로 등록
-  // await todoStore.updateTodo(수정할데이터)
-  // await todoStore.deleteTodo(할일ID)
+  formData.value = { ...initialFormData }; // 폼 초기화
   await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('create', formData.value);
   closeModal(); // 생성 후 모달 닫기
@@ -60,71 +72,25 @@ const deleteTodo = async () => {
       </div>
 
       <div class="modal-body">
-         <!-- <div class="form-row">
-          <label class="form-label">서비스유형</label>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="importance" value="low" v-model="formData.importance" class="radio-input"> 기능개선
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="importance" value="high" v-model="formData.importance" class="radio-input"> 업무지원/단순문의
-            </label>
-          </div>
-        </div> -->
-
         <div class="form-row">
-          <!--label for="priority" class="form-label">우선순위</!--label>
-          <input type="text" id="priority" v-model="formData.priority" class="form-input"-->
           <TheInputBox id="priority" label="우선순위" placeholder="너는 내 맘속에 몇등이냣!" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
-
         <div class="form-row">
-          <!--label for="regDate" class="form-label">등록일</label>
-          <div class="input-with-icon">
-            <input type="date" id="regDate" v-model="formData.regDate" class="form-input date-input">
-             <input type="date" id="regDateEnd" v-model="formData.regDateEnd" class="form-input date-input ml-10">
-          </div-->
-
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
-
         </div>
-
         <div class="form-row">
-          <!--label for="completionDate" class="form-label">완료일</label>
-          <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input"-->
           <TheInputBox id="dueDt" label="목표완료일" type="date" v-model="formData.dueDt"/>
         </div>
-        
-        <!-- <div class="form-row">
-          <label class="form-label">공수시간</label>
-          <p class="read-only-text">자동 계산</p>
-        </div> -->
-
-        <!-- <div class="form-row">
-          <label for="effortTime" class="form-label">공수시간</label>
-          <div class="input-two-fields">
-            <input type="text" id="effortTime" v-model="formData.effortTime" class="form-input short-input">
-            <input type="text" placeholder="공수시간" v-model="formData.noteEffortTime" class="form-input long-input">
-          </div>
-        </div> -->
-        
         <div class="form-row">
-          <!--label for="requester" class="form-label">요청자</!--label>
-          <input type="text" id="requester" v-model="formData.requester" class="form-input"-->
           <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester"/>
         </div>
-
         <div class="form-row">
           <TheInputBox id="srno" label="SR번호" placeholder="몰라!!!!"  type="text"  v-model="formData.srno" />
         </div>
-
         <div class="form-row">
           <TheInputBox id="requestTitle" label="제목" placeholder="누구겠니"  type="text"  v-model="formData.requestTitle" />
         </div>
-
         <div class="form-row textarea-row">
-          <!--label for="requestContent" class="form-label">요청 내용</!--label>
-          <textarea-- id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea-->
           <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :rows = "5"/>
         </div>
       </div>
@@ -136,9 +102,7 @@ const deleteTodo = async () => {
       <div class="modal-footer">
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
         <TheButton type="button" class="button button-create" text="생성" @click="createTodo" :iconYn="false"/>
-        
-        <!--button class="button button-cancel" @click="closeModal">취소</!--button>
-        <button-- class="button button-create" @click="createTodo">생성</button-->
+
       </div>
     </div>
   </div>

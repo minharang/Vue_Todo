@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import TheButton from '@/components/common/TheButton.vue'
+import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
 import SrSearchForm from './SrSearchForm.vue';
 import SrList from './SrList.vue';
 
@@ -22,9 +23,22 @@ const handleSearch = (conditions) => {
   })
 }
 
-const addSr = () => {
-  alert('SR 추가 기능 준비 중입니다.')
-}
+const isCreateModalVisible = ref(false);
+
+const openCreateTodoModal = () => {
+  isCreateModalVisible.value = true;
+};
+
+const closeCreateTodoModal = () => {
+  isCreateModalVisible.value = false;
+};
+
+const handleCreateTodo = (formData) => {
+  console.log('할 일 생성 완료!:', formData);
+  // 여기에 실제 할 일 목록에 데이터를 추가하는 로직을 구현합니다.
+  alert('할 일이 성공적으로 생성되었습니다!');
+};
+
 </script>
 
 <template>
@@ -34,9 +48,9 @@ const addSr = () => {
         <div class="card user-management-card">
             <div class="card-header-with-button">
                 <h3 class="card-title">SR 관리</h3>
-                <TheButton class="add-button" text="SR 추가" @click="addSr" :iconYn="false" /> <!--todo등록 폼...? 넣으면 될듯-->
+                <TheButton type="button" class="add-button open-modal-button" text="SR 추가" @click="openCreateTodoModal" :iconYn="false"/>
+                <CreateTodoModal :isVisible="isCreateModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
             </div>
-
             <SrSearchForm @search="handleSearch" />
             <SrList :srs="filteredSrs" />
         </div>

@@ -14,6 +14,7 @@ exports.getTodoById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [req.params.todo_id]);
     if (!rows.length) return res.status(404).json({ message: '할 일 없음' });
+    console.log('[Executing Query]',rows[0]);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);

@@ -75,5 +75,23 @@ export const useTodoStore = defineStore('todo', {
         this.loading = false
       }
     },
+     async getTodoById(todo_id) {
+      this.loading = true
+      this.error = null
+      try {
+        const res = await fetch(`http://localhost:3000/todos/${todo_id}`)
+        if (!res.ok) {
+          throw new Error('조회 실패')
+        } else {
+        const data = await res.json()
+        this.todos = data
+        return data
+      }
+      } catch (e) {
+        this.error = e
+      } finally {
+        this.loading = false
+      }
+    },   
   },
 })

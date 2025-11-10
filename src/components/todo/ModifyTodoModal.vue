@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits, watchEffect } from 'vue';
+import { ref, defineProps, defineEmits, watch } from 'vue';
 import { useTodoStore } from '@/stores/todo'; // Todo store import
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
@@ -17,9 +17,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'update']);
+const todoStore = useTodoStore()
 
-const formData = ref({
-  todo_id : '',
+const initialFormData = { // 폼 초기화
+  todo_id : null,
   priority: '',
   startDt: '',
   completedDt: '',
@@ -29,35 +30,61 @@ const formData = ref({
   requestContent: '',
   status: '',
   userId: '' 
-});
-
-watchEffect(async () => {
-  if (props.isVisible && props.todo_id) {
-      formData.value.todo_id = props.todo_id; 
-      try {
-          const response = await fetchTodoDetail(props.todo_id);
-          formData.value.requestTitle = response.requestTitle;
-          formData.value.requestContent = response.requestContent;
-          // ... 나머지 필드 채우기 ...
-
-      } catch (error) {
-          console.log(`${props.todo_id} 상세 정보를 가져오는데 실패했습니다.`, error);
-      }
-  } else if (props.isVisible && !props.todo_id) {
-    //todo_id 없이 모달열림
-  }
-});
-
-const fetchTodoDetail = async (todo_id) => {
-    const response = await fetch(`/api/todos/${todo_id}`);
-    return response.json(); 
 };
+
+const formData = ref({ ...initialFormData }); // 초기 폼 데이터
+
+// watch를 사용하여 isVisible이 변경될 때만 로직 실행 (watchEffect 대신 사용 권장)
+watch(() => props.isVisible, async (newVal) => {
+    if (newVal) { // 모달이 열릴 때 (isVisible === true)
+        const currentTodoId = props.todo_id;
+
+        if (currentTodoId) { // 수정 모드 (todo_id가 있는 경우)
+            formData.value.todo_id = currentTodoId;
+            try {
+                console.log(`fetchTodoDetail(${currentTodoId}) :: 상세 정보 로딩 시작`);
+                const response = await todoStore.getTodoById(currentTodoId);
+                
+                //store에서 null 반환 시
+                if (!response) {
+                     throw new Error('서버에서 데이터를 받지 못했습니다.');
+                }
+                
+                // 데이터 매핑
+                formData.value.priority = response.priority;
+                formData.value.requestTitle = response.request_title;
+                formData.value.requestContent = response.request_content;
+                formData.value.requester = response.requester;
+                formData.value.srno = response.srno;
+
+                // 날짜 변환 및 매핑
+                formData.value.startDt = response.start_dt ? response.start_dt.split('T')[0] : '';
+                formData.value.dueDt = response.due_dt ? response.due_dt.split('T')[0] : '';
+                formData.value.completedDt = response.completed_dt ? response.completed_dt.split('T')[0] : '';
+
+                formData.value.status = response.status;
+                formData.value.userId = response.user_id;
+                
+                console.log("데이터 매핑 완료 :: ", formData.value);
+
+            } catch (error) {
+                console.error(`${currentTodoId} 상세 정보를 가져오는데 실패했습니다.`, error);
+                // 실패 시 모달을 닫기
+                emit('close'); 
+            }
+        } else { // 새 할 일 모드 (todo_id가 null인 경우)
+            formData.value = { ...initialFormData }; // 폼 초기화
+            console.log("todo_id 없이 모달 열림");
+        }
+    } else { // 모달이 닫힐 때 (isVisible === false)
+        // 모달이 닫힐 때 폼 데이터 초기화
+        formData.value = { ...initialFormData }; 
+    }
+}, { immediate: true }); // 컴포넌트 마운트 시 한 번 실행
 
 const closeModal = () => {
   emit('close');
 };
-
-const todoStore = useTodoStore()
 
 const modifyTodo = async () => {
   console.log('할 일 저장 데이터:', formData.value);
@@ -85,88 +112,38 @@ const deleteTodo = async () => {
         <h2 class="modal-title">할 일 수정</h2>
         <button class="close-button" @click="closeModal">&times;</button>
       </div>
-
       <div class="modal-body">
-         <!-- <div class="form-row">
-          <label class="form-label">서비스유형</label>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="importance" value="low" v-model="formData.importance" class="radio-input"> 기능개선
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="importance" value="high" v-model="formData.importance" class="radio-input"> 업무지원/단순문의
-            </label>
-          </div>
-        </div> -->
         <div class="form-row">
-          <!--label for="priority" class="form-label">우선순위</!--label>
-          <input type="text" id="priority" v-model="formData.priority" class="form-input"-->
           <TheInputBox id="priority" label="우선순위" placeholder="너는 내 맘속에 몇등이냣!" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
-
         <div class="form-row">
-          <!--label for="regDate" class="form-label">등록일</label>
-          <div class="input-with-icon">
-            <input type="date" id="regDate" v-model="formData.regDate" class="form-input date-input">
-             <input type="date" id="regDateEnd" v-model="formData.regDateEnd" class="form-input date-input ml-10">
-          </div-->
-
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
-
         </div>
-
         <div class="form-row">
-          <!--label for="completionDate" class="form-label">완료일</label>
-          <input type="date" id="completionDate" v-model="formData.completionDate" class="form-input"-->
           <TheInputBox id="dueDt" label="목표완료일" type="date" v-model="formData.dueDt"/>
-        </div>
-        
-        <!-- <div class="form-row">
-          <label class="form-label">공수시간</label>
-          <p class="read-only-text">자동 계산</p>
-        </div> -->
-
-        <!-- <div class="form-row">
-          <label for="effortTime" class="form-label">공수시간</label>
-          <div class="input-two-fields">
-            <input type="text" id="effortTime" v-model="formData.effortTime" class="form-input short-input">
-            <input type="text" placeholder="공수시간" v-model="formData.noteEffortTime" class="form-input long-input">
-          </div>
-        </div> -->
-        
+        </div>        
         <div class="form-row">
-          <!--label for="requester" class="form-label">요청자</!--label>
-          <input type="text" id="requester" v-model="formData.requester" class="form-input"-->
           <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester"/>
         </div>
-
         <div class="form-row">
           <TheInputBox id="srno" label="SR번호" placeholder="몰라!!!!"  type="text"  v-model="formData.srno" />
         </div>
-
         <div class="form-row">
           <TheInputBox id="requestTitle" label="제목" placeholder="누구겠니"  type="text"  v-model="formData.requestTitle" />
         </div>
-
         <div class="form-row textarea-row">
-          <!--label for="requestContent" class="form-label">요청 내용</!--label>
-          <textarea-- id="requestContent" v-model="formData.requestContent" class="form-input textarea-input" rows="5" placeholder="요청 내용을 입력하세요."></textarea-->
           <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :rows = "5"/>
         </div>
       </div>
-
       <!--그 외 hidden으로 데이터 넘겨야하는 값들-->
       <TheInputBox id="status" label="상태" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.status"/>
       <TheInputBox id="userId" label="사용자id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.userId"/>
       <TheInputBox id="todo_id" label="todo_id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.todo_id"/>
 
       <div class="modal-footer">
-        <!--todo_id 값 유무에 따라 삭제버튼 노출-->
         <TheButton type="button" class="button button-delete" text="삭제" @click="deleteTodo" :iconYn="false"/>
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
-        <!--todo_id 값 유무에 따라 생성 / 수정 텍스트 노출-->
         <TheButton type="button" class="button button-create" text="저장" @click="modifyTodo" :iconYn="false"/>
-        
       </div>
     </div>
   </div>

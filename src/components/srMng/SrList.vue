@@ -1,9 +1,40 @@
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, ref, computed , onMounted } from 'vue'
+import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import { Pencil, X } from 'lucide-vue-next'  /* TODO. npm i lucide-vue-next 설치 confluence에 적을것!!! 잊지말고... */
 const props = defineProps({
   srs: Array,
 })
+
+const isModifyModalVisible = ref(false);
+const selectedTodoId = ref(null);
+
+const openModifyTodoModal = (todo_id = null) => {
+  try {
+    if (todo_id === null || todo_id === undefined) {
+      console.log('안들어왔어 todo_id');
+      selectedTodoId.value = '1';
+    } else {
+      console.log('todo_id 잘 들어왔니 : ' + todo_id);
+      selectedTodoId.value = todo_id;
+    }
+    isModifyModalVisible.value = true;
+        
+  } catch (error) {
+    console.error('openModifyTodoModal 실행 중 처리되지 않은 오류 발생:', error);
+  }
+};
+
+const closeModifyTodoModal = () => {
+  isModifyModalVisible.value = false;
+};
+
+const handleModifyTodo = (formData) => {
+  console.log('할 일 저장 완료!:', formData);
+  alert('할 일이 성공적으로 저장되었습니다!');
+};
+
+
 </script>
 <template>
 <div class="user-table-container">
@@ -35,9 +66,10 @@ const props = defineProps({
             <span :class="['status-dot', sr.active ? 'active' : 'inactive']"></span>
           </td>
           <td class="action-icons">
-            <button class="icon-button edit" title="수정">
+            <button class="icon-button edit" title="수정" @click="openModifyTodoModal('7')" :iconYn="true" >
               <Pencil size="16" />
             </button>
+            <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />            
             <button class="icon-button delete" title="삭제">
               <X size="16" />
             </button>
