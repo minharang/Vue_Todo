@@ -1,8 +1,8 @@
 <script setup>
 import { defineProps } from 'vue'
-import { Pencil, X } from 'lucide-vue-next' 
+import { Pencil, X } from 'lucide-vue-next'  /* TODO. npm i lucide-vue-next 설치 confluence에 적을것!!! 잊지말고... */
 const props = defineProps({
-  users: Array,
+  reports: Array,
 })
 </script>
 <template>
@@ -10,27 +10,29 @@ const props = defineProps({
     <table class="user-table">
       <thead>
         <tr>
-          <th>이름</th>
-          <th>아이디</th>
-          <th>부서</th>
-          <th>권한</th>
-          <th>이메일</th>
-          <th>마지막로그인일시</th>
+          <th>Sr No</th>
+          <th>요청자</th>
+          <th>제목</th>
+          <th>진행상태</th>
+          <th>우선순위</th>
+          <th>시작일</th>
+          <th>종료일</th>
           <th>상태</th>
           <th>작업</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr v-for="user in users" :key="user.userId">
-          <td>{{ user.userName }}</td>
-          <td>{{ user.userId }}</td>
-          <td>{{ user.deptId }}</td>
-          <td>{{ user.authGrpId }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.lastLoginedDt }}</td>
+        <tr v-for="data in reports" :key="data.todoId">
+          <td>{{ data.srno }}</td>
+          <td>{{ data.requester }}</td>
+          <td>{{ data.requestTitle }}</td>
+          <td>{{ data.status }}</td>
+          <td>{{ data.priority }}</td>
+          <td>{{ data.startDt }}</td>
+          <td>{{ data.completedDt }}</td>
           <td>
-            <span :class="['status-dot', user.lockedYn ? 'active' : 'inactive']"></span>
+            <span :class="['status-dot', data.active ? 'active' : 'inactive']"></span>
           </td>
           <td class="action-icons">
             <button class="icon-button edit" title="수정">

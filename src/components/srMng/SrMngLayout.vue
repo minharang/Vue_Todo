@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import TheButton from '@/components/common/TheButton.vue'
 import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
-import SrSearchForm from './SrSearchForm.vue';
-import SrList from './SrList.vue';
+import SrSearchForm from '@/components/srMng/SrSearchForm.vue';
+import SrList from '@/components/srMng/SrList.vue';
 
 const srs = ref([
   { todoId: 1, srno:'ServIn1234', requester: '서뚜기', requestTitle: 'dduck@cj.net닷!!', status: '1111', priority: 1, startDt: '2025-10-27', completedDt: '', active: true },

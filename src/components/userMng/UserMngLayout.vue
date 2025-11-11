@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import TheButton from '@/components/common/TheButton.vue'
-import UserSearchForm from './UserSearchForm.vue';
-import UserList from './UserList.vue';
+import UserSearchForm from '@/components/userMng/UserSearchForm.vue';
+import UserList from '@/components/userMng/UserList.vue';
 
 const users = ref([
   { userId: 1, userName: '밍밍`', email: 'ming@cj.net', deptId: '대한통운 WMS팀', authGrpId: '일반', lastLoginedDt: '2025-01-01 00:00:00', lockedYn: true },

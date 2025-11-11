@@ -1,9 +1,6 @@
 <script setup>
-import TheHeader from '../common/TheHeader.vue';
-//import TheSidebar from '../common/TheSidebar.vue';
-import WorkEffortCard from './WorkEffortCard.vue';
-import WorkloadProgressChart from './WorkloadProgressChart.vue';
-import TodoListCard from './TodoListCard.vue';
+import WorkloadProgressChart from '@/components/todo/WorkloadProgressChart.vue';
+import TodoListCard from '@/components/todo/TodoListCard.vue';
 </script>
 
 <template>
