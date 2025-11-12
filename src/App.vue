@@ -2,12 +2,14 @@
 import TheHeader from '@/components/common/TheHeader.vue';
 import { RouterView } from 'vue-router';
 import ErrorBoundary from '@/components/common/ErrorBoundary.vue'
+import ToastNotification from '@/components/common/ToastNotification.vue';
 import { computed } from 'vue'
 import { useErrorStore } from '@/stores/errorStore'
 
 const errorStore = useErrorStore()
 const error = computed(() => errorStore.lastError)
 const clearError = () => errorStore.clearError()
+
 </script>
 
 <template>
@@ -22,6 +24,8 @@ const clearError = () => errorStore.clearError()
     <p>{{ error.message }}</p>
     <button @click="clearError">닫기</button>
   </div>
+  
+  <ToastNotification />
 </template>
 
 <style scoped>

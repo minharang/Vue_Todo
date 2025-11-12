@@ -1,6 +1,7 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
-import { useTodoStore } from '@/stores/todo'; // Todo store import
+import { useTodoStore } from '@/stores/todo';
+import { useToast } from '@/stores/toast';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
 import TheButton from '@/components/common/TheButton.vue';
@@ -13,6 +14,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'create']);
+const todoStore = useTodoStore();
+const { addToast } = useToast();
 
 const formData = ref({
   priority: '',
@@ -43,22 +46,24 @@ const closeModal = () => {
   emit('close');
 };
 
-const todoStore = useTodoStore()
-
 const createTodo = async () => {
+  const start = formData.value.startDt;
+  const due = formData.value.dueDt;
+
+  if (start && due && new Date(start) > new Date(due)) {
+    // 유효성 검사 실패 시 토스트 알람 띄우고 함수 종료
+    addToast('목표 완료일은 시작일보다 빠를 수 없습니다.', 'error', 3000);
+    return; // 저장 프로세스 중단
+  }
+
   console.log('할 일 생성 데이터:', formData.value);
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
   await todoStore.createTodo(formData.value) // fetch로 등록
+  addToast('게시물이 등록되었습니다!', 'success', 3000);
   formData.value = { ...initialFormData }; // 폼 초기화
-  await todoStore.fetchTodos() // 할 일 목록 새로고침
+  //await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('create', formData.value);
   closeModal(); // 생성 후 모달 닫기
-};
-
-const deleteTodo = async () => {
-  console.log('할 일 삭제 데이터:', formData.value);
-  // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
-   closeModal(); // 생성 후 모달 닫기
 };
 
 </script>
@@ -73,7 +78,7 @@ const deleteTodo = async () => {
 
       <div class="modal-body">
         <div class="form-row">
-          <TheInputBox id="priority" label="우선순위" placeholder="너는 내 맘속에 몇등이냣!" type="text" v-model="formData.priority" :srOnlyLabel="false" />
+          <TheInputBox id="priority" label="우선순위" placeholder="우선도" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
         <div class="form-row">
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
@@ -82,16 +87,16 @@ const deleteTodo = async () => {
           <TheInputBox id="dueDt" label="목표완료일" type="date" v-model="formData.dueDt"/>
         </div>
         <div class="form-row">
-          <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester"/>
+          <TheInputBox id="requester" label="요청자" placeholder="요청자" type="text" v-model="formData.requester"/>
         </div>
         <div class="form-row">
-          <TheInputBox id="srno" label="SR번호" placeholder="몰라!!!!"  type="text"  v-model="formData.srno" />
+          <TheInputBox id="srno" label="SR번호" placeholder="요청번호"  type="text"  v-model="formData.srno" />
         </div>
         <div class="form-row">
-          <TheInputBox id="requestTitle" label="제목" placeholder="누구겠니"  type="text"  v-model="formData.requestTitle" />
+          <TheInputBox id="requestTitle" label="제목" placeholder="제목"  type="text"  v-model="formData.requestTitle" />
         </div>
         <div class="form-row textarea-row">
-          <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :rows = "5"/>
+          <TheTextArea id="requestContent" label="요청 내용" placeholder="작업내용" v-model="formData.requestContent" :rows = "5"/>
         </div>
       </div>
 
@@ -337,14 +342,6 @@ const deleteTodo = async () => {
   background-color: #0056b3;
 }
 
-.button-delete {
-  background-color: #dc3545; 
-  color: #fff;
-}
-
-.button-delete:hover {
-  background-color: #c82333;
-}
 
 /* 미디어 쿼리 (모바일 반응형) */
 @media (max-width: 768px) {

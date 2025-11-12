@@ -1,26 +1,29 @@
 <script setup>
 import { defineProps, ref, computed , onMounted } from 'vue'
+import { useTodoStore } from '@/stores/todo';
+import { useToast } from '@/stores/toast';
 import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import { Pencil, X } from 'lucide-vue-next'  /* TODO. npm i lucide-vue-next 설치 confluence에 적을것!!! 잊지말고... */
 const props = defineProps({
   srs: Array,
 })
 
+const todoStore = useTodoStore();
+const { addToast } = useToast();
 const isModifyModalVisible = ref(false);
 const selectedTodoId = ref(null);
 
 const openModifyTodoModal = (todo_id = null) => {
   try {
     if (todo_id === null || todo_id === undefined) {
-      console.log('안들어왔어 todo_id');
-      selectedTodoId.value = '1';
+      addToast('ID 정보를 가져오는데 실패했습니다', 'error', 3000);
     } else {
-      console.log('todo_id 잘 들어왔니 : ' + todo_id);
       selectedTodoId.value = todo_id;
     }
     isModifyModalVisible.value = true;
         
   } catch (error) {
+    addToast('상세 정보를 가져오는데 실패했습니다', 'error', 3000);
     console.error('openModifyTodoModal 실행 중 처리되지 않은 오류 발생:', error);
   }
 };
@@ -31,9 +34,24 @@ const closeModifyTodoModal = () => {
 
 const handleModifyTodo = (formData) => {
   console.log('할 일 저장 완료!:', formData);
-  alert('할 일이 성공적으로 저장되었습니다!');
 };
 
+const deleteTodoSrList = async (todo_id = null) => {
+  try {
+    if (todo_id === null || todo_id === undefined) {
+      addToast('ID 정보를 가져오는데 실패했습니다', 'error', 3000);
+    } else {
+      selectedTodoId.value = todo_id;
+      await todoStore.deleteTodo(todo_id);
+      addToast('게시물이 삭제되었습니다!', 'success', 3000);
+      // 삭제 후 목록 새로고침 필요
+    }
+
+  } catch (error) {
+    addToast('삭제를 실패했습니다', 'error', 3000);
+    console.error('삭제 실행 중 처리되지 않은 오류 발생:', error);
+  }
+};
 
 </script>
 <template>
@@ -70,7 +88,7 @@ const handleModifyTodo = (formData) => {
               <Pencil size="16" />
             </button>
             <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />            
-            <button class="icon-button delete" title="삭제">
+            <button class="icon-button delete" title="삭제" @click="deleteTodoSrList('6')" >
               <X size="16" />
             </button>
           </td>

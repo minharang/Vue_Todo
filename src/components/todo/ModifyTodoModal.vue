@@ -1,6 +1,7 @@
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
-import { useTodoStore } from '@/stores/todo'; // Todo store import
+import { useToast } from '@/stores/toast';
+import { useTodoStore } from '@/stores/todo';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
 import TheButton from '@/components/common/TheButton.vue';
@@ -17,7 +18,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'update']);
-const todoStore = useTodoStore()
+const todoStore = useTodoStore();
+const { addToast } = useToast();
 
 const initialFormData = { // 폼 초기화
   todo_id : null,
@@ -64,17 +66,16 @@ watch(() => props.isVisible, async (newVal) => {
 
                 formData.value.status = response.status;
                 formData.value.userId = response.user_id;
-                
-                console.log("데이터 매핑 완료 :: ", formData.value);
 
             } catch (error) {
+                addToast('상세 정보를 가져오는데 실패했습니다', 'error', 3000);
                 console.error(`${currentTodoId} 상세 정보를 가져오는데 실패했습니다.`, error);
                 // 실패 시 모달을 닫기
                 emit('close'); 
             }
         } else { // 새 할 일 모드 (todo_id가 null인 경우)
             formData.value = { ...initialFormData }; // 폼 초기화
-            console.log("todo_id 없이 모달 열림");
+            addToast('ID 정보 없이 모달 열림', 'error', 3000);
         }
     } else { // 모달이 닫힐 때 (isVisible === false)
         // 모달이 닫힐 때 폼 데이터 초기화
@@ -87,18 +88,27 @@ const closeModal = () => {
 };
 
 const modifyTodo = async () => {
-  console.log('할 일 저장 데이터:', formData.value);
-  // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
-   await todoStore.updateTodo(formData.value)
-  // await todoStore.deleteTodo(할일ID)
+  const start = formData.value.startDt;
+  const due = formData.value.dueDt;
+
+  if (start && due && new Date(start) > new Date(due)) {
+    // 유효성 검사 실패 시 토스트 알람 띄우고 함수 종료
+    addToast('목표 완료일은 시작일보다 빠를 수 없습니다.', 'error', 3000);
+    return; // 저장 프로세스 중단
+  }
+
+  await todoStore.updateTodo(formData.value)
+  addToast('정보가 성공적으로 저장되었습니다!', 'success', 3000);
   await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('update', formData.value);
   closeModal();
 };
 
 const deleteTodo = async () => {
-  console.log('할 일 삭제 데이터:', formData.value);
-  await todoStore.deleteTodo(할일ID)
+  const currentTodoId = props.todo_id;
+  console.log('할 일 삭제 데이터:', currentTodoId);
+  await todoStore.deleteTodo(currentTodoId)
+  addToast('게시물이 삭제되었습니다!', 'success', 3000);
   // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
    closeModal(); // 생성 후 모달 닫기
 };
@@ -114,7 +124,7 @@ const deleteTodo = async () => {
       </div>
       <div class="modal-body">
         <div class="form-row">
-          <TheInputBox id="priority" label="우선순위" placeholder="너는 내 맘속에 몇등이냣!" type="text" v-model="formData.priority" :srOnlyLabel="false" />
+          <TheInputBox id="priority" label="우선순위" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
         <div class="form-row">
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
@@ -123,16 +133,16 @@ const deleteTodo = async () => {
           <TheInputBox id="dueDt" label="목표완료일" type="date" v-model="formData.dueDt"/>
         </div>        
         <div class="form-row">
-          <TheInputBox id="requester" label="요청자" placeholder="누가 이딴 일을 시켰어!!" type="text" v-model="formData.requester"/>
+          <TheInputBox id="requester" label="요청자" type="text" v-model="formData.requester"/>
         </div>
         <div class="form-row">
-          <TheInputBox id="srno" label="SR번호" placeholder="몰라!!!!"  type="text"  v-model="formData.srno" />
+          <TheInputBox id="srno" label="SR번호" type="text"  v-model="formData.srno" />
         </div>
         <div class="form-row">
-          <TheInputBox id="requestTitle" label="제목" placeholder="누구겠니"  type="text"  v-model="formData.requestTitle" />
+          <TheInputBox id="requestTitle" label="제목" type="text"  v-model="formData.requestTitle" />
         </div>
         <div class="form-row textarea-row">
-          <TheTextArea id="requestContent" label="요청 내용" placeholder="너 잖아, 이 자식아" v-model="formData.requestContent" :rows = "5"/>
+          <TheTextArea id="requestContent" label="요청 내용" v-model="formData.requestContent" :rows = "5"/>
         </div>
       </div>
       <!--그 외 hidden으로 데이터 넘겨야하는 값들-->

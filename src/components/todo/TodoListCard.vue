@@ -81,12 +81,6 @@ const filteredTodos = computed(() => {
   return todos.value.filter(todo => todo.priority === targetStatus);
 });
 
-const addTodo = () => {
-  console.log('추가 버튼 클릭');
-  // 여기에 할 일 추가 모달을 여는 로직 (예: emit('openCreateTodoModal'))
-  // 또는 Vue Router를 이용한 페이지 이동 로직을 추가합니다.
-};
-
 const getTodoStatusClass = (status) => {
   switch (status) {
     case '완료': return 'status-completed';
@@ -109,8 +103,6 @@ const closeCreateTodoModal = () => {
 
 const handleCreateTodo = (formData) => {
   console.log('할 일 생성 완료!:', formData);
-  // 여기에 실제 할 일 목록에 데이터를 추가하는 로직을 구현합니다.
-  alert('할 일이 성공적으로 생성되었습니다!');
 };
 
 const isModifyModalVisible = ref(false);
@@ -119,10 +111,8 @@ const selectedTodoId = ref(null);
 const openModifyTodoModal = (todo_id = null) => {
   try {
     if (todo_id === null || todo_id === undefined) {
-      console.log('안들어왔어 todo_id');
       selectedTodoId.value = '1';
     } else {
-      console.log('todo_id 잘 들어왔니 : ' + todo_id);
       selectedTodoId.value = todo_id;
     }
     isModifyModalVisible.value = true;
@@ -138,7 +128,7 @@ const closeModifyTodoModal = () => {
 
 const handleModifyTodo = (formData) => {
   console.log('할 일 저장 완료!:', formData);
-  alert('할 일이 성공적으로 저장되었습니다!');
+  //alert('할 일이 성공적으로 저장되었습니다!');
 };
 
 const calcDiffDays = (start, end) => {
@@ -156,8 +146,6 @@ const calcDiffDays = (start, end) => {
   <div class="card todo-list-card">
     <div class="card-header-with-button">
       <h3 class="card-title">SR 리스트</h3>
-      <!-- <button class="add-button" @click="addTodo">추가</button> -->
-       <!-- <button @click="openCreateTodoModal" class="add-button open-modal-button">새 할 일 추가</button> -->
         <div>
         <TheButton type="button" class="add-button open-modal-button" text="수정" @click="openModifyTodoModal('1')" :iconYn="false"/>
         <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />
