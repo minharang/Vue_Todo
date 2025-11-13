@@ -30,11 +30,11 @@ exports.createTodo = async (req, res) => {
 
   try {
     const sql = `INSERT INTO todoboard
-      (priority, start_dt, due_dt, completed_dt, requester, srno, request_title, request_content, status, user_id)
-      VALUES (?, COALESCE(NULLIF(?, ''), CURDATE()), ?, ?, ?, ?, ?, ?, ?, ?)`;
+      (priority, start_dt, due_dt, completed_dt, requester, srno, request_title, request_content, status, user_id, create_id)
+      VALUES (?, COALESCE(NULLIF(?, ''), CURDATE()), ?, ?, ?, ?, ?, ?, ?, ?,?)`;
     const [result] = await pool.query(sql, [
       priority, startDt, dueDt, completionDate,
-      requester, srno, requestTitle, requestContent, status, userId
+      requester, srno, requestTitle, requestContent, status, userId, userId
     ]);
 
     const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [result.todo_id]);
@@ -55,7 +55,7 @@ exports.updateTodo = async (req, res) => {
     const sql = `update todoboard
                     set priority = ? , start_dt = COALESCE(NULLIF(?, ''), CURDATE()) , due_dt = ? , completed_dt = ? 
                       , requester = ? , srno = ? , request_title = ? , request_content = ?
-                      , status = ? , user_id = ?
+                      , status = ? , update_id = ?
                   where todo_id = ?`;
     const [result] = await pool.query(sql, [
       priority, startDt, dueDt, completionDate,

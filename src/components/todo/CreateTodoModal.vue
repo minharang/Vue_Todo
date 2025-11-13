@@ -1,7 +1,8 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
-import { useTodoStore } from '@/stores/todo';
 import { useToast } from '@/stores/toast';
+import { useLoginStore } from '@/stores/login';
+import { useTodoStore } from '@/stores/todo';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
 import TheButton from '@/components/common/TheButton.vue';
@@ -14,8 +15,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'create']);
-const todoStore = useTodoStore();
 const { addToast } = useToast();
+const loginStore = useLoginStore();
+const todoStore = useTodoStore();
 
 const formData = ref({
   priority: '',
@@ -47,6 +49,8 @@ const closeModal = () => {
 };
 
 const createTodo = async () => {
+
+  formData.value.userId = loginStore.userId;
   const start = formData.value.startDt;
   const due = formData.value.dueDt;
 
@@ -55,9 +59,7 @@ const createTodo = async () => {
     addToast('목표 완료일은 시작일보다 빠를 수 없습니다.', 'error', 3000);
     return; // 저장 프로세스 중단
   }
-
-  console.log('할 일 생성 데이터:', formData.value);
-  // 여기에 할 일 생성 로직 (API 호출 등)을 추가합니다.
+  // 여기에 할 일 생성 로직 (API 호출 등)을 추가
   await todoStore.createTodo(formData.value) // fetch로 등록
   addToast('게시물이 등록되었습니다!', 'success', 3000);
   formData.value = { ...initialFormData }; // 폼 초기화

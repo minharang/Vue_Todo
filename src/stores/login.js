@@ -18,7 +18,9 @@ export const useLoginStore = defineStore('login', {
                 const response = await axios.get(`${API_BASE_URL}/api/com/getCurrentUser`, { withCredentials: true }); 
                 
                 this.user = response.data;
-                this.isAuthenticated = !!response.data.userId; 
+                //페이지 새로고침시 상태 유지를 위해 LocalStorage에 저장
+                localStorage.setItem('user', JSON.stringify(response.data));
+                this.isAuthenticated = !!response.data.USER_ID; 
 
                 console.log('User info loaded:', this.user);
 
@@ -60,7 +62,6 @@ export const useLoginStore = defineStore('login', {
                 throw new Error(message); 
             } 
         },
-
         async logoutUser() {
             try{
 
@@ -71,14 +72,20 @@ export const useLoginStore = defineStore('login', {
                 this.user = null;
                 this.isAuthenticated = false;
                 this.loginError = null;
+                localStorage.removeItem('user');
 
             }catch(err) {
                 console.error('로그아웃 실패:', err);
                 this.user = null;
                 this.isAuthenticated = false;
                 this.loginError = null;
+                localStorage.removeItem('user');
             }
             
         },
+    },
+    getters: {
+        userId: (state) => state.user ? state.user.USER_ID : 'Guest',
+        userName: (state) => state.user ? state.user.USER_NAME : 'Guest',
     },
 });

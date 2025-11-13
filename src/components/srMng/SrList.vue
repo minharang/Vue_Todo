@@ -84,18 +84,18 @@ const deleteTodoSrList = async (todo_id = null) => {
             <span :class="['status-dot', sr.active ? 'active' : 'inactive']"></span>
           </td>
           <td class="action-icons">
-            <button class="icon-button edit" title="수정" @click="openModifyTodoModal('7')" :iconYn="true" >
+            <button class="icon-button edit" title="수정" @click="openModifyTodoModal('3')" :iconYn="true" >
               <Pencil size="16" />
             </button>
-            <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />            
-            <button class="icon-button delete" title="삭제" @click="deleteTodoSrList('6')" >
+            <button class="icon-button delete" title="삭제" @click="deleteTodoSrList('4')" >
               <X size="16" />
             </button>
           </td>
-        </tr>
+        </tr>     
       </tbody>
     </table>
   </div>
+  <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />
 </template>
 
 <style scoped>

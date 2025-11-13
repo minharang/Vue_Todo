@@ -1,6 +1,7 @@
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
 import { useToast } from '@/stores/toast';
+import { useLoginStore } from '@/stores/login';
 import { useTodoStore } from '@/stores/todo';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
@@ -18,8 +19,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'update']);
-const todoStore = useTodoStore();
 const { addToast } = useToast();
+const loginStore = useLoginStore();
+const todoStore = useTodoStore();
 
 const initialFormData = { // 폼 초기화
   todo_id : null,
@@ -36,10 +38,11 @@ const initialFormData = { // 폼 초기화
 
 const formData = ref({ ...initialFormData }); // 초기 폼 데이터
 
-// watch를 사용하여 isVisible이 변경될 때만 로직 실행 (watchEffect 대신 사용 권장)
+// watch를 사용하여 isVisible이 변경될 때만 실행
 watch(() => props.isVisible, async (newVal) => {
     if (newVal) { // 모달이 열릴 때 (isVisible === true)
         const currentTodoId = props.todo_id;
+        formData.value.userId = loginStore.userId;
 
         if (currentTodoId) { // 수정 모드 (todo_id가 있는 경우)
             formData.value.todo_id = currentTodoId;

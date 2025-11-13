@@ -35,8 +35,6 @@ const closeCreateTodoModal = () => {
 
 const handleCreateTodo = (formData) => {
   console.log('할 일 생성 완료!:', formData);
-  // 여기에 실제 할 일 목록에 데이터를 추가하는 로직을 구현합니다.
-  alert('할 일이 성공적으로 생성되었습니다!');
 };
 
 </script>
