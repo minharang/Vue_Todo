@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed , onMounted } from 'vue';
+import { useToast } from '@/stores/toast';
 import TheButton from '@/components/common/TheButton.vue';
 import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
 import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import axios from 'axios';
 const API_BASE_URL = 'http://localhost:3000'; 
 
+const { addToast } = useToast();
 const tabs = ref([]);
 const currentTab = ref(null);
 const GRP_ID_FOR_TABS = 'S001';
@@ -25,6 +27,7 @@ const fetchStatus = async () => {
          if (fetchedTabs.length > 0) {
             currentTab.value = fetchedTabs[0].value;
         }
+        currentTab.value = 'all';
 
     } catch (err) {
         console.error('공통코드 정보를 불러오는데 실패하였습니다.', err);
@@ -39,33 +42,38 @@ const handleTabClick = (tabValue) => {
     
 };
 
-/*const tabs = [
-  { label: '전체보기', value: 'all' },
-  { label: '진행중', value: 'in-progress' },
-  { label: '보류', value: 'on-hold' },
-  { label: '미완료', value: 'incomplete' },
-  { label: '완료', value: 'completed' }
-];*/
-/*const currentTab = ref('all');*/ // 현재 활성화된 탭
 
 // 상태 변수
 const todos = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
+const fetchTodos = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+        // 실제 할 일 데이터를 가져오는 API 엔드포인트 호출
+        const response = await axios.get(`${API_BASE_URL}/todos`);
+        
+        // **중요**: DB에서 가져온 배열을 `todos.value`에 저장합니다.
+        todos.value = response.data; 
+        console.log("todos.value :: " + todos.value);
+        addToast('게시물이 조회되었습니다!', 'success', 3000);
+        
+    } catch (err) {
+        addToast('할 일 데이터를 불러오는데 실패하였습니다.', 'error', 3000);
+        console.error('할 일 데이터를 불러오는데 실패하였습니다.', err);
+        error.value = '할 일 데이터를 불러오는데 실패하였습니다.';
+    } finally {
+        loading.value = false;
+    }
+};
 
 onMounted(async () => {
-  fetchStatus();
-  /*try {
-    const res = await fetch("http://localhost:3000/todos")
-    if (!res.ok) throw new Error("API 호출 실패")
-    todos.value = await res.json()
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    loading.value = false
-  }*/
-})
+    // 탭 상태와 할 일 데이터를 동시에 가져옵니다.
+    await fetchStatus();
+    await fetchTodos(); 
+});
 
 const filteredTodos = computed(() => {
   if (currentTab.value === 'all') {
@@ -155,14 +163,6 @@ const calcDiffDays = (start, end) => {
     </div>
 
     <div class="tab-buttons">
-      <!-- <button
-        v-for="tab in tabs"
-        :key="tab.value"
-        :class="['tab-item', { active: currentTab === tab.value }]"
-        @click="currentTab = tab.value"
-      >
-        {{ tab.label }}
-      </button> -->
       <TheButton type="button" v-for="tab in tabs" :key="tab.value" 
       :class="['tab-item', { active: currentTab === tab.value }]" :text="tab.label" @click="handleTabClick(tab.value)" :iconYn="false" />
     </div>
@@ -179,7 +179,21 @@ const calcDiffDays = (start, end) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="todo in filteredTodos" :key="todo.id" :class="getTodoStatusClass(todo.priority)">
+          <tr v-if="loading">
+            <td colspan="5" class="text-center">데이터를 불러오는 중입니다...</td>
+          </tr>
+          
+          <tr v-else-if="error">
+            <td colspan="5" class="text-center error-message">
+              {{ error }}
+            </td>
+          </tr>
+
+          <tr v-else-if="filteredTodos.length === 0">
+            <td colspan="5" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
+          </tr>
+
+          <tr v-for="todo in filteredTodos" :key="todo.todo_id" @click="openModifyTodoModal(todo.todo_id)" :class="getTodoStatusClass(todo.priority)" style="cursor: pointer;">
             <td>
               <span v-if="todo.priority === '완료'" class="status-icon completed">✔</span>
               <span v-else-if="todo.priority === '진행중'" class="status-icon in-progress"></span>
@@ -188,20 +202,20 @@ const calcDiffDays = (start, end) => {
               {{ todo.priority }}
             </td>
             <td>
-              <p class="todo-summary-title">{{ todo.requester }}</p>
-              <p class="todo-summary-sr">{{ todo.requestContent }}</p>
+              <p class="todo-summary-title">{{ todo.request_title }}</p>
+              <p class="todo-summary-sr">{{ todo.request_content }}</p>
             </td>
             
             <td>
-              <p class="todo-date-top">{{ todo.regDate }}</p>
-              <p class="todo-date-bottom">{{ todo.regDateEnd}}</p>
+              <p class="todo-date-top">{{ todo.due_dt }}</p>
+              <p class="todo-date-bottom">{{ todo.completed_dt}}</p>
             </td>
             <td>
-              <p class="todo-effort-top">{{ todo.completionDate }}</p>
+              <p class="todo-effort-top">{{ todo.completed_dt }}</p>
               <p class="todo-effort-bottom"></p>
             </td>
             <td>
-              <p class="todo-effort-top">{{ calcDiffDays(todo.regDate,  todo.completionDate) }}</p>
+              <p class="todo-effort-top">{{ calcDiffDays(todo.completed_dt, todo.due_dt) }}</p>
               <p class="todo-effort-bottom"></p>
             </td>
           </tr>
@@ -379,4 +393,20 @@ const calcDiffDays = (start, end) => {
   }
 }
 
+.text-center {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #888;
+}
+
+.error-message {
+  color: #dc3545; /* 에러 메시지는 빨간색으로 강조 */
+  font-weight: bold;
+}
+
+.todo-table tbody tr:hover {
+    background-color: #f5f5f5; /* 마우스 오버 시 색상 변화로 클릭 가능 표시 */
+    transition: background-color 0.15s ease;
+}
 </style>
