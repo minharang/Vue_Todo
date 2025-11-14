@@ -102,7 +102,6 @@ const modifyTodo = async () => {
 
   await todoStore.updateTodo(formData.value)
   addToast('정보가 성공적으로 저장되었습니다!', 'success', 3000);
-  await todoStore.fetchTodos() // 할 일 목록 새로고침
   emit('update', formData.value);
   closeModal();
 };

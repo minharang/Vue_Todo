@@ -2,7 +2,16 @@ const pool = require('../pool');
 
 exports.getTodos = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM todoboard ORDER BY todo_id DESC');
+    const [rows] = await pool.query(`SELECT todo_id, request_title
+       , request_content, user_id, status, requester, type_id, del_yn, except_yn, priority
+       , srno, note, note2, start_dt, man_hour, calculate_hour
+       , DATE_FORMAT(created_dt, '%Y-%m-%d %H:%i:%s') AS created_dt
+       , create_id
+       , DATE_FORMAT(updated_dt, '%Y-%m-%d %H:%i:%s') AS updated_dt
+       , update_id
+       , DATE_FORMAT(completed_dt, '%Y-%m-%d %H:%i:%s') AS completed_dt
+       , DATE_FORMAT(due_dt, '%Y-%m-%d %H:%i:%s') AS due_dt
+       FROM todoboard ORDER BY todo_id DESC`);
     res.json(rows);
   } catch (err) {
     console.error(err);

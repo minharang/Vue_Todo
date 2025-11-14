@@ -5,6 +5,7 @@ import TheButton from '@/components/common/TheButton.vue';
 import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
 import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import axios from 'axios';
+import { Pencil, X } from 'lucide-vue-next'
 const API_BASE_URL = 'http://localhost:3000'; 
 
 const { addToast } = useToast();
@@ -36,7 +37,11 @@ const fetchStatus = async () => {
 };
 
 const handleTabClick = (tabValue) => {
-    currentTab.value = tabValue;
+    if(tabValue == '0000'){
+      currentTab.value = 'all';
+    } else {
+      currentTab.value = tabValue;
+    }
     // TODO: 탭이 바뀔 때 데이터를 다시 불러오거나 필터링하는 로직을 여기에 추가
     console.log(`탭변경됨요: ${tabValue}`);
     
@@ -111,6 +116,8 @@ const closeCreateTodoModal = () => {
 
 const handleCreateTodo = (formData) => {
   console.log('할 일 생성 완료!:', formData);
+    //목록 새로고침
+  fetchTodos();
 };
 
 const isModifyModalVisible = ref(false);
@@ -119,24 +126,27 @@ const selectedTodoId = ref(null);
 const openModifyTodoModal = (todo_id = null) => {
   try {
     if (todo_id === null || todo_id === undefined) {
-      selectedTodoId.value = '1';
+      addToast('게시글 번호 정보가 없습니다.', 'error', 3000);
+      return;
     } else {
-      selectedTodoId.value = todo_id;
+      selectedTodoId.value = String(todo_id);
     }
     isModifyModalVisible.value = true;
         
   } catch (error) {
+    addToast('게시글 정보가 없습니다.', 'error', 3000);
     console.error('openModifyTodoModal 실행 중 처리되지 않은 오류 발생:', error);
   }
 };
 
 const closeModifyTodoModal = () => {
   isModifyModalVisible.value = false;
+  //목록 새로고침
+  fetchTodos();
 };
 
 const handleModifyTodo = (formData) => {
   console.log('할 일 저장 완료!:', formData);
-  //alert('할 일이 성공적으로 저장되었습니다!');
 };
 
 const calcDiffDays = (start, end) => {
@@ -155,7 +165,6 @@ const calcDiffDays = (start, end) => {
     <div class="card-header-with-button">
       <h3 class="card-title">SR 리스트</h3>
         <div>
-        <TheButton type="button" class="add-button open-modal-button" text="수정" @click="openModifyTodoModal('1')" :iconYn="false"/>
         <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />
         <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>
         <CreateTodoModal :isVisible="isCreateModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
@@ -176,6 +185,7 @@ const calcDiffDays = (start, end) => {
             <th>등록일<br>처리일</br></th>
             <th>완료일</th>
             <th>공수시간</th>
+            <th>작업</th>
           </tr>
         </thead>
         <tbody>
@@ -190,10 +200,10 @@ const calcDiffDays = (start, end) => {
           </tr>
 
           <tr v-else-if="filteredTodos.length === 0">
-            <td colspan="5" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
+            <td colspan="6" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
           </tr>
 
-          <tr v-for="todo in filteredTodos" :key="todo.todo_id" @click="openModifyTodoModal(todo.todo_id)" :class="getTodoStatusClass(todo.priority)" style="cursor: pointer;">
+          <tr v-for="todo in filteredTodos" :key="todo.todo_id" :class="getTodoStatusClass(todo.priority)" style="cursor: pointer;">
             <td>
               <span v-if="todo.priority === '완료'" class="status-icon completed">✔</span>
               <span v-else-if="todo.priority === '진행중'" class="status-icon in-progress"></span>
@@ -218,8 +228,12 @@ const calcDiffDays = (start, end) => {
               <p class="todo-effort-top">{{ calcDiffDays(todo.completed_dt, todo.due_dt) }}</p>
               <p class="todo-effort-bottom"></p>
             </td>
-          </tr>
-          
+            <td>
+              <button class="icon-button edit" title="수정" @click="openModifyTodoModal(todo.todo_id)" :iconYn="true" >
+              <Pencil size="16" />
+              </button>
+            </td>
+          </tr>          
         </tbody>
       </table>
     </div>
@@ -227,7 +241,6 @@ const calcDiffDays = (start, end) => {
 </template>
 
 <style scoped>
-
 .card-header-with-button {
   display: flex;
   justify-content: space-between;
