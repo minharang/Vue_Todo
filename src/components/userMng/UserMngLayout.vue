@@ -1,15 +1,48 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useToast } from '@/stores/toast';
 import TheButton from '@/components/common/TheButton.vue'
 import UserSearchForm from '@/components/userMng/UserSearchForm.vue';
 import UserList from '@/components/userMng/UserList.vue';
+import MembershipFormModal from '@/components/userMng/MembershipForm.vue'; 
+import axios from 'axios';
 
-const users = ref([
-  { userId: 1, userName: '밍밍`', email: 'ming@cj.net', deptId: '대한통운 WMS팀', authGrpId: '일반', lastLoginedDt: '2025-01-01 00:00:00', lockedYn: true },
-  { userId: 2, userName: '밍밍2', email: 'ming.ming@cj.net', deptId: '대한통운 TCS팀',  authGrpId: '관리자', lastLoginedDt: '2025.10.27 15:30:00', lockedYn: false },
-])
+const API_BASE_URL = 'http://localhost:3000'; 
 
-const filteredUsers = ref([...users.value])
+const emit = defineEmits(['close', 'update']);
+const { addToast } = useToast();
+const filteredUsers = ref([]);
+const users = ref([]);
+const isModalVisible = ref(false);
+
+const getAllUsers = async () => {
+  try {
+        const response = await axios.get(`${API_BASE_URL}/users`); 
+        console.log(response.data);
+        
+        users.value = response.data.map(item => ({
+          userId: item.user_id,
+          userName: item.user_name,
+          deptId : item.dept_id,
+          authGrpId : item.auth_grp_id,
+          email : item.email,
+          lastLoginedDt : item.last_logined_dt,
+          lockedYn : item.locked_yn
+        }));
+    } catch (err) {
+        console.error('유저 정보를 불러오는데 실패하였습니다.', err);
+    } 
+
+};
+
+onMounted(async () => {
+    await getAllUsers(); 
+});
+
+
+watch(users, (newUsers) => {
+    filteredUsers.value = [...newUsers]
+})
 
 const handleSearch = (conditions) => {
   filteredUsers.value = users.value.filter((u) => {
@@ -18,13 +51,17 @@ const handleSearch = (conditions) => {
     // const roleMatch = conditions.role ? u.role === conditions.role : true
     // const activeMatch = conditions.active ? u.active : true
     // return textMatch && deptMatch && roleMatch && activeMatch
-    return '';
+    const textMatch = !conditions.text || u.userName.includes(conditions.text)
+
+    return textMatch;
   })
 }
-
 const addUser = () => {
-  alert('사용자 추가 기능 준비 중입니다.')
+  isModalVisible.value = true;
 }
+const closeMembershipFormModal = () => {
+  isModalVisible.value = false;
+};
 </script>
 
 <template>
@@ -34,7 +71,8 @@ const addUser = () => {
         <div class="card user-management-card">
             <div class="card-header-with-button">
                 <h3 class="card-title">사용자 관리</h3>
-                <TheButton class="add-button" text="사용자 추가" @click="addUser" :iconYn="false" /> <!--회원관리 폼...? 넣으면 될듯-->
+                <TheButton class="add-button" text="사용자 추가" @click="addUser" :iconYn="false" />
+                <MembershipFormModal :isVisible="isModalVisible" @close="closeMembershipFormModal" />
             </div>
 
             <UserSearchForm @search="handleSearch" />

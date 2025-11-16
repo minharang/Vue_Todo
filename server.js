@@ -30,7 +30,7 @@ const auth = require('@routes/auth');
 app.use('/auth', auth);     
 
 const userRoutes = require('@routes/users'); 
-app.use('/api/users', userRoutes); 
+app.use('/users', userRoutes); 
 
 const todoRoutes = require('@routes/todo'); 
 app.use('/todos', todoRoutes); 
