@@ -19,6 +19,15 @@ try {
 // 삭제예정 : 20251029 src 외 controllers 라우팅 위한 주석 처리
 //const todoRoutes = todoModule?.default || todoModule // CommonJS/ESM 모두 대응
 
+let userRoutes
+try {
+  // package.json _moduleAliases에 "@routes": "routes" 설정되어 있으면 사용
+  userRoutes = require('@routes/users')
+} catch (err) {
+  // alias가 없으면 상대경로로 fallback
+  userRoutes = require('./routes/users')
+}
+
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -29,6 +38,7 @@ app.use(express.json())
  * 그 핸들러에서 DB 쿼리(또는 컨트롤러 호출)를 수행, CRUD는 모두 routes/todo.js => controllers/todoController.js 에서 처리
  */
 app.use('/todos', todoRoutes)
+app.use('/users', userRoutes)
 
 
 /* 삭제예정 : 20251029 src 외 controllers 라우팅 위한 주석 처리
