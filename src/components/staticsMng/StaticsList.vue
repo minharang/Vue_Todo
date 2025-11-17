@@ -1,47 +1,85 @@
 <script setup>
-import { defineProps } from 'vue'
+import { ref, computed , onMounted } from 'vue'
 import { Pencil, X } from 'lucide-vue-next'  /* TODO. npm i lucide-vue-next 설치 confluence에 적을것!!! 잊지말고... */
-const props = defineProps({
-  reports: Array,
-})
+//import { useStatisticsStore } from '@/stores/statistics';
+import { useToast } from '@/stores/toast';
+import axios from 'axios';
+const API_BASE_URL = 'http://localhost:3000'; 
+
+//const statisticsStore = useStatisticsStore();
+
+// 상태 변수
+const { addToast } = useToast();
+const statisticsList = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+
+
+const fetchStatisticsMng = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+        // 실제 할 일 데이터를 가져오는 API 엔드포인트 호출
+        const response = await axios.get(`${API_BASE_URL}/api/statistics`);
+        
+        // **중요**: DB에서 가져온 배열을 `statisticsList.value`에 저장합니다.
+        statisticsList.value = response.data; 
+        console.log("statisticsList.value :: " + statisticsList.value);
+        addToast('게시물이 조회되었습니다!', 'success', 3000);
+        
+    } catch (err) {
+        addToast('통계 데이터를 불러오는데 실패하였습니다.', 'error', 3000);
+        console.error('통계 데이터를 불러오는데 실패하였습니다.', err);
+        error.value = '통계 데이터를 불러오는데 실패하였습니다.';
+    } finally {
+        loading.value = false;
+    }
+};
+
+onMounted(async () => {
+    await fetchStatisticsMng(); 
+});
+
 </script>
 <template>
 <div class="user-table-container">
     <table class="user-table">
       <thead>
         <tr>
-          <th>Sr No</th>
-          <th>요청자</th>
-          <th>제목</th>
-          <th>진행상태</th>
-          <th>우선순위</th>
-          <th>시작일</th>
-          <th>종료일</th>
-          <th>상태</th>
-          <th>작업</th>
+          <th>사용자</th>
+          <th>년도</th>
+          <th>월</th>
+          <th>일</th>
+          <th>서비스 유형</th>
+          <th>계산된 공수시간 합계</th>
+          <th>보고된 공수시간 합계</th>
+          <th>생성일</th>
+          <th>수정일</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr v-for="data in reports" :key="data.todoId">
-          <td>{{ data.srno }}</td>
-          <td>{{ data.requester }}</td>
-          <td>{{ data.requestTitle }}</td>
-          <td>{{ data.status }}</td>
-          <td>{{ data.priority }}</td>
-          <td>{{ data.startDt }}</td>
-          <td>{{ data.completedDt }}</td>
-          <td>
-            <span :class="['status-dot', data.active ? 'active' : 'inactive']"></span>
+       <tr v-if="loading">
+          <td colspan="5" class="text-center">데이터를 불러오는 중입니다...</td>
+       </tr>
+          
+       <tr v-else-if="error">
+          <td colspan="5" class="text-center error-message">
+              {{ error }}
           </td>
-          <td class="action-icons">
-            <button class="icon-button edit" title="수정">
-              <Pencil size="16" />
-            </button>
-            <button class="icon-button delete" title="삭제">
-              <X size="16" />
-            </button>
-          </td>
+       </tr>
+        <tr v-for="data in statisticsList" :key="data.user_id">
+          <td>{{ data.user_name }}</td>
+          <td>{{ data.year }}</td>
+          <td>{{ data.month }}</td>
+          <td>{{ data.date }}</td>
+          <td>{{ data.cd_nm }}</td>
+          <td>{{ data.calculate_hour_sum }}</td>
+          <td>{{ data.man_hour_sum }}</td>
+          <td>{{ data.created_dt }}</td>
+          <td>{{ data.updated_dt }}</td>
+          
         </tr>
       </tbody>
     </table>

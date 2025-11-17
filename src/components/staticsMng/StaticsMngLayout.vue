@@ -4,23 +4,23 @@ import WorkloadProgressChart from '@/components/todo/WorkloadProgressChart.vue';
 import StaticsList from '@/components/staticsMng/StaticsList.vue';
 import TheCalendar from '@/components/common/TheCalendar.vue';
 
-const reports = ref([
-  { todoId: 1, srno:'ServIn1234', requester: '서뚜기', requestTitle: 'dduck@cj.net닷!!', status: '1111', priority: 1, startDt: '2025-10-27', completedDt: '', active: true },
-  { todoId: 2, srno:'ServIn1235', requester: '성뚜기', requestTitle: 'baegi@cj.net닷!!!', status: '1111', priority: 2, startDt: '2025-10-20', completedDt: '2025-10-27', active: false },
-])
+// const reports = ref([
+//   { todoId: 1, srno:'ServIn1234', requester: '서뚜기', requestTitle: 'dduck@cj.net닷!!', status: '1111', priority: 1, startDt: '2025-10-27', completedDt: '', active: true },
+//   { todoId: 2, srno:'ServIn1235', requester: '성뚜기', requestTitle: 'baegi@cj.net닷!!!', status: '1111', priority: 2, startDt: '2025-10-20', completedDt: '2025-10-27', active: false },
+// ])
 
-const filteredReports = ref([...reports.value])
+// const filteredReports = ref([...reports.value])
 
-const handleSearch = (conditions) => {
-  filteredReports.value = reports.value.filter((u) => {
-    // const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
-    // const deptMatch = conditions.dept ? u.dept === conditions.dept : true
-    // const roleMatch = conditions.role ? u.role === conditions.role : true
-    // const activeMatch = conditions.active ? u.active : true
-    // return textMatch && deptMatch && roleMatch && activeMatch
-    return ''
-  })
-}
+// const handleSearch = (conditions) => {
+//   filteredReports.value = reports.value.filter((u) => {
+//     // const textMatch = u.name.includes(conditions.text) || u.email.includes(conditions.text)
+//     // const deptMatch = conditions.dept ? u.dept === conditions.dept : true
+//     // const roleMatch = conditions.role ? u.role === conditions.role : true
+//     // const activeMatch = conditions.active ? u.active : true
+//     // return textMatch && deptMatch && roleMatch && activeMatch
+//     return ''
+//   })
+// }
 
 const selectedDate = ref(null);
 

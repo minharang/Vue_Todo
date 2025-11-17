@@ -1,43 +1,47 @@
-//서버시작 및 라우터 연결 역할
 require('module-alias/register');
 const express = require('express');
 const cors = require('cors'); 
 const session = require('express-session');
+const path = require('path');
+const history = require('connect-history-api-fallback');
+
 const app = express();
 const PORT = 3000; 
 
+// 0. CORS / JSON / SESSION
 app.use(cors({
-    origin: 'http://localhost:5173', 
-    credentials: true,            
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: 'http://localhost:5173',
+    credentials: true
 }));
-
 app.use(express.json());
-
 app.use(session({
-    secret:  'study-pmds-srtodo-key-1357', 
+    secret: 'study-pmds-srtodo-key-1357',
     resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        maxAge: 1000 * 60 * 60 * 24,  // 24시간 세션 유지
-        httpOnly: true, 
-        secure: false, 
-    } 
+    saveUninitialized: false
 }));
 
-const auth = require('@routes/auth');
-app.use('/auth', auth);     
+
+// 1. API 라우터는 반드시 history *위에*
+app.use('/auth', require('@routes/auth'));
+app.use('/api/users', require('@routes/users'));
+app.use('/todos', require('@routes/todo'));
+app.use('/api/com', require('@routes/com'));
 
 const userRoutes = require('@routes/users'); 
 app.use('/users', userRoutes); 
 
-const todoRoutes = require('@routes/todo'); 
-app.use('/todos', todoRoutes); 
+app.use('/api/statistics', require('./routes/statistics'));
+app.use('/api/statistics', (req, res, next) => {
+  console.log('📥 [API 호출 진입]:', req.method, req.originalUrl);
+  next();
+});
+// 2. history fallback — rewrites 옵션 제거
+app.use(history());     // ← 이렇게만 해야 API가 안 가로채짐
 
-const comcd = require('@routes/com');
-app.use('/api/com', comcd); 
+// 3. 정적 파일 서빙은 history *아래*
+app.use(express.static(path.join(__dirname, 'dist')));
 
+// 4. 서버 시작
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
