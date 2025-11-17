@@ -1,36 +1,3 @@
-<template>
-  <h2 class="section-title">업무 수행률 정보</h2> 
-  <div class="performance-info-card"> 
-
-    <div class="chart-section">
-      <h3 class="card-title mb-2">업무 공수시간</h3>
-      <div class="donut-chart-wrapper">
-        <Pie :data="chartData" :options="chartOptions" :plugins="[centerTextPlugin]" />
-      </div>
-    </div>
-
-    <div class="summary-section">
-      <div class="relative flex-1">
-        <h3 class="card-title summary-title">업무 공수시간 요약</h3>
-
-        <ul class="summary-list"> 
-          <li>📊 총 업무시간: <strong>{{ totalHours }}</strong>시간</li>
-          <li>🗓️ 휴일/휴가 시간: <strong>{{ holidayHours }}</strong>시간</li>
-          <li>⏰ 실제 업무 가능 시간: <strong>{{ totalAvailableHours }}</strong>시간</li>
-          <li>💼 실제 근무한 시간: <strong>{{ actualHours }}</strong>시간</li>
-        </ul>
-
-      </div>
-    </div>
-  </div>
-  <!-- 에러 발생 버튼 추가 -->
-  <!--
-  <button @click="causeError" style="margin-top:20px;padding:10px 20px;font-weight:bold;color:#fff;background:#ef4444;border-radius:6px;border:none;cursor:pointer;">
-    에러 발생 테스트
-  </button>
-  -->
-</template>
-
 <script setup>
 import { Pie } from 'vue-chartjs'
 import {
@@ -40,23 +7,74 @@ import {
   ArcElement,
 } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { useLoginStore } from '@/stores/login';
+import { useStatisticsStore } from '@/stores/statistics';
+import { ref, computed , onMounted } from 'vue'
 
-ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels) 
+
+const loginStore = useLoginStore();
+const userId = loginStore.userId;
+const statisticsStore = useStatisticsStore();
+
+const loading = ref(true);
+const error = ref(null);
 
 // ✅ 데이터 설정
 const totalHours = 500
 const holidayHours = 200
-const actualHours = 200
+const actualHours = ref(0);
+
+
+const actualHoursList = ref([]);
+const year = 2025
+const month = 11
+
+const fetchWorkloadProgress = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+        // 실제 할 일 데이터를 가져오는 API 엔드포인트 호출
+        //const response = await axios.get(`${API_BASE_URL}/api/statistics`);
+        console.log(`fetchWorkloadProgress(${userId}) :: 상세 정보 로딩 시작`);
+        //실제 근무 시간
+        const response = await statisticsStore.getUserActualWorkingHours(userId, year, month);
+
+        // **중요**: DB에서 가져온 배열을 `statisticsList.value`에 저장합니다.
+        actualHours.value = response?.man_hour_sum ?? 0;  // ❗ null, undefined 모두 0 처리
+        console.log("actualHours.man_hour_sum :: " + actualHours);
+        //addToast('게시물이 조회되었습니다!', 'success', 3000);
+        
+    } catch (err) {
+        //addToast('통계 데이터를 불러오는데 실패하였습니다.', 'error', 3000);
+        console.error('그래프 데이터를 불러오는데 실패하였습니다.', err);
+        error.value = '그래프 데이터를 불러오는데 실패하였습니다.';
+    } finally {
+        loading.value = false;
+    }
+};
+
+onMounted(async () => {
+    await fetchWorkloadProgress(); 
+});
+
+const safeNumber = (value) => {
+  const num = Number(value);
+  return isNaN(num) || value === null || value === undefined ? 0 : num;
+};
+
+const safeActualHours = safeNumber(actualHours);
+
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels) 
 
 const totalAvailableHours = totalHours - holidayHours
-const remainingHours = Math.max(totalAvailableHours - actualHours, 0)
-const percentage = Math.round((actualHours / totalAvailableHours) * 100)
+const remainingHours = Math.max(totalAvailableHours - safeActualHours, 0)
+const percentage = Math.round((safeActualHours / totalAvailableHours) * 100)
 
 const chartData = {
   labels: ['업무 수행', '미진행'],
   datasets: [
     {
-      data: [actualHours, remainingHours],
+      data: [safeActualHours, remainingHours],
       backgroundColor: ['#4F46E5', '#E5E7EB'],
       borderWidth: 0,
     },
@@ -112,6 +130,33 @@ function causeError() {
   throw new Error("테스트용 고의 에러 발생!");
 }
 </script>
+
+<template>
+  <h2 class="section-title">업무 수행률 정보</h2> 
+  <div class="performance-info-card"> 
+
+    <div class="chart-section">
+      <h3 class="card-title mb-2">업무 공수시간</h3>
+      <div class="donut-chart-wrapper">
+        <Pie :data="chartData" :options="chartOptions" :plugins="[centerTextPlugin]" />
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <div class="relative flex-1">
+        <h3 class="card-title summary-title">업무 공수시간 요약</h3>
+
+        <ul class="summary-list"> 
+          <li>📊 총 업무시간: <strong>{{ totalHours }}</strong>시간</li>
+          <li>🗓️ 휴일/휴가 시간: <strong>{{ holidayHours }}</strong>시간</li>
+          <li>⏰ 실제 업무 가능 시간: <strong>{{ totalAvailableHours }}</strong>시간</li>
+          <li>💼 실제 근무한 시간: <strong>{{ actualHours }}</strong>시간</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 /* 섹션 타이틀 스타일 */

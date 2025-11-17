@@ -5,6 +5,7 @@ const statisticsController = require('@/controllers/statisticsController');
 
 // GET /api/statistics 
 router.get('/', statisticsController.getStatistics);
+router.get('/:user_id/:year/:month', statisticsController.getUserActualWorkingHours);
 
 // 테스트 라우트 먼저
 // router.get('/', (req, res) => {
