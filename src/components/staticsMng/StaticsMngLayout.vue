@@ -1,8 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import WorkloadProgressChart from '@/components/todo/WorkloadProgressChart.vue';
+import StaticsSettingLayout from '@/components/staticsMng/StaticsSettingLayout.vue';
 import StaticsList from '@/components/staticsMng/StaticsList.vue';
-import TheCalendar from '@/components/common/TheCalendar.vue';
 
 // const reports = ref([
 //   { todoId: 1, srno:'ServIn1234', requester: '서뚜기', requestTitle: 'dduck@cj.net닷!!', status: '1111', priority: 1, startDt: '2025-10-27', completedDt: '', active: true },
@@ -38,7 +37,7 @@ const handleDateSelection = (date) => {
             <div class="card-header-with-button">
                 <h3 class="card-title">통계 관리</h3>
            </div>
-           <WorkloadProgressChart/>
+           <StaticsSettingLayout/>
            <!-- <TheCalendar @date-selected="handleDateSelection" /> -->
             <StaticsList/>
         </div>
