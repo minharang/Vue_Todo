@@ -10,6 +10,7 @@ const API_BASE_URL = 'http://localhost:3000';
 
 const { addToast } = useToast();
 const tabs = ref([]);
+const statusMap = ref({});
 const currentTab = ref(null);
 const GRP_ID_FOR_TABS = 'S001';
 
@@ -25,20 +26,27 @@ const fetchStatus = async () => {
 
         tabs.value = fetchedTabs;
 
-         if (fetchedTabs.length > 0) {
+        statusMap.value = fetchedTabs.reduce((acc, item) => {
+          acc[item.value] = item.label;
+          return acc;
+        }, {});
+
+        console.log(statusMap.value);
+
+        if (fetchedTabs.length > 0) {
             currentTab.value = fetchedTabs[0].value;
         }
-        currentTab.value = 'all';
 
     } catch (err) {
         console.error('공통코드 정보를 불러오는데 실패하였습니다.', err);
         tabs.value = [{ value: 'error', label: '오류발생' }];
+     
     } 
 };
 
 const handleTabClick = (tabValue) => {
-    if(tabValue == '0000'){
-      currentTab.value = 'all';
+    if(tabValue == '전체'){
+      currentTab.value = '전체';
     } else {
       currentTab.value = tabValue;
     }
@@ -81,25 +89,23 @@ onMounted(async () => {
 });
 
 const filteredTodos = computed(() => {
-  if (currentTab.value === 'all') {
+  const activeTab = tabs.value.find(t => t.value === currentTab.value);
+
+  if (!activeTab) return todos.value;
+
+  if (activeTab.label === '전체') {
     return todos.value;
   }
-  const statusMap = {
-    'in-progress': '진행중',
-    'on-hold': '보류',
-    'incomplete': '미완료',
-    'completed': '완료'
-  };
-  const targetStatus = statusMap[currentTab.value];
-  return todos.value.filter(todo => todo.priority === targetStatus);
+  //const targetStatus = statusMap.value[currentTab.value];
+  return todos.value.filter(todo => todo.status_nm === activeTab.label);
 });
 
 const getTodoStatusClass = (status) => {
   switch (status) {
     case '완료': return 'status-completed';
-    case '진행중': return 'status-in-progress';
-    case '보류': return 'status-on-hold';
-    case '미완료': return 'status-incomplete';
+    case '진행': return 'status-in-progress';
+    case '반려': return 'status-on-hold';
+    case '접수': return 'status-incomplete';
     default: return '';
   }
 };
@@ -203,13 +209,13 @@ const calcDiffDays = (start, end) => {
             <td colspan="6" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
           </tr>
 
-          <tr v-for="todo in filteredTodos" :key="todo.todo_id" :class="getTodoStatusClass(todo.priority)" style="cursor: pointer;">
+          <tr v-for="todo in filteredTodos" :key="todo.todo_id" :class="getTodoStatusClass(todo.status_nm)" style="cursor: pointer;">
             <td>
-              <span v-if="todo.priority === '완료'" class="status-icon completed">✔</span>
-              <span v-else-if="todo.priority === '진행중'" class="status-icon in-progress"></span>
-              <span v-else-if="todo.priority === '보류'" class="status-icon on-hold">▲</span>
-              <span v-else-if="todo.priority === '미완료'" class="status-icon incomplete"></span>
-              {{ todo.priority }}
+              <span v-if="todo.status_nm === '완료'" class="status-icon completed">✔</span>
+              <span v-else-if="todo.status_nm === '진행'" class="status-icon in-progress"></span>
+              <span v-else-if="todo.status_nm === '반려'" class="status-icon on-hold">▲</span>
+              <span v-else-if="todo.status_nm === '접수'" class="status-icon incomplete"></span>
+              {{ todo.status_nm }}
             </td>
             <td>
               <p class="todo-summary-title">{{ todo.request_title }}</p>
