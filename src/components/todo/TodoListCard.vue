@@ -213,9 +213,9 @@ const calcDiffDays = (start, end) => {
         <thead>
           <tr>
             <th>상태</th>
-            <th>요청자 <br>요약</th>
-            <th>등록일<br>처리일</br></th>
-            <th>완료일</th>
+            <th>제목</th>
+            <th>등록일</th>
+            <th>완료예정일<br>완료일</br></th>
             <th>공수시간</th>
             <th>작업</th>
           </tr>
@@ -245,7 +245,6 @@ const calcDiffDays = (start, end) => {
             </td>
             <td>
               <p class="todo-summary-title">{{ todo.request_title }}</p>
-              <p class="todo-summary-sr">{{ todo.request_content }}</p>
             </td>
             
             <td>
@@ -260,7 +259,7 @@ const calcDiffDays = (start, end) => {
               <p class="todo-effort-top">{{ calcDiffDays(todo.completed_dt, todo.due_dt) }}</p>
               <p class="todo-effort-bottom"></p>
             </td>
-            <td>
+            <td class="action-icons">
               <button class="icon-button edit" title="수정" @click.stop="openModifyTodoModal(todo.todo_id)" :iconYn="true" >
                 <Pencil size="16" />
               </button>
@@ -339,7 +338,15 @@ const calcDiffDays = (start, end) => {
   border-collapse: collapse; /* 셀 경계선 병합 */
 }
 
-.todo-table th,
+.todo-table th{
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top; /* 셀 내용 상단 정렬 */
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+}
+
 .todo-table td {
   padding: 12px 15px;
   text-align: left;
@@ -348,6 +355,10 @@ const calcDiffDays = (start, end) => {
   font-size: 14px;
   color: #333;
   overflow: hidden;
+}
+
+.todo-table td:nth-last-child{
+  text-align:center;
 }
 
 .todo-table th {
@@ -470,5 +481,33 @@ const calcDiffDays = (start, end) => {
 .todo-table tbody tr:hover {
     background-color: #f5f5f5; /* 마우스 오버 시 색상 변화로 클릭 가능 표시 */
     transition: background-color 0.15s ease;
+}
+
+/* ✅ 아이콘 버튼 영역 */
+.action-icons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.icon-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.icon-button:hover {
+  background: #f3f4f6;
+}
+
+.icon-button.edit svg {
+  stroke: #3b82f6; /* 파란색 (수정) */
+}
+
+.icon-button.delete svg {
+  stroke: #ef4444; /* 빨간색 (삭제) */
 }
 </style>
