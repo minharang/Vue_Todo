@@ -11,13 +11,18 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { name, email } = req.body;
     try {
-        const [result] = await pool.query('INSERT INTO users (user_id, user_name) VALUES (?, ?)', [seq, hello]);
-        res.status(201).json({ 
-            message: '사용자 생성 성공', 
-            hello: result.hello 
-        });
+         console.log('Request Body:', req.body); // 들어오는 값 확인
+        const { user_id, user_name, email, password } = req.body;
+        const [result] = await pool.query('INSERT INTO users (user_id, user_name, email, password) VALUES (?, ?, ?, ?)', [user_id, user_name, email, password]);
+        const newUser = {
+            userId :user_id,
+            userName : user_name,
+            email,
+            password
+        };
+        console.log('INSERT RESULT:', result);
+        res.status(201).json(newUser); 
     } catch (err) {
         console.error('Error creating user:', err);
         res.status(500).send({ message: '사용자 생성에 실패했습니다.' });

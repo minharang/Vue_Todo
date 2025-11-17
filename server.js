@@ -27,6 +27,9 @@ app.use('/api/users', require('@routes/users'));
 app.use('/todos', require('@routes/todo'));
 app.use('/api/com', require('@routes/com'));
 
+const userRoutes = require('@routes/users'); 
+app.use('/users', userRoutes); 
+
 app.use('/api/statistics', require('./routes/statistics'));
 app.use('/api/statistics', (req, res, next) => {
   console.log('📥 [API 호출 진입]:', req.method, req.originalUrl);

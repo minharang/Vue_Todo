@@ -1,5 +1,7 @@
 <script setup>
 import { ref, defineEmits } from 'vue'; // defineProps, defineEmits 임포트
+import { useUserStore } from '@/stores/user';
+import { useToast } from '@/stores/toast';
 
 // isVisible을 prop으로 받습니다.
 const props = defineProps({
@@ -10,7 +12,9 @@ const props = defineProps({
 });
 
 // 부모 컴포넌트로 'close' 이벤트를 발생시키기 위해 defineEmits 사용
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'create']);
+const userStore = useUserStore();
+const { addToast } = useToast();
 
 const formData = ref({
   id: '',
@@ -53,7 +57,7 @@ const checkIdDuplication = () => {
   }, 500); 
 };
 
-const submitForm = () => {
+const submitForm = async () => {
   if (isIdAvailable.value === null) {
     alert('아이디 중복 확인을 해주세요.');
     return;
@@ -72,8 +76,35 @@ const submitForm = () => {
     alert('이용 약관에 동의해야 합니다.');
     return;
   }
-  alert('회원가입이 완료되었습니다!');
-  closeModal();
+
+  // 서버 필드명에 맞춰 payload 생성
+  const payload = {
+    user_id: formData.value.id,
+    user_name: formData.value.name,
+    email: formData.value.mail,
+    password: formData.value.mypassword
+  };
+
+  try {
+    await userStore.createUser(payload);
+    addToast('회원가입 완료!', 'success', 3000);
+
+    formData.value = {
+      id: '',
+      mypassword: '',
+      confirmPassword: '',
+      name: '',
+      mail: '',
+      agreeTerms: false
+    };
+    isIdAvailable.value = null;
+
+    emit('create', payload);
+    closeModal();
+  } catch (err) {
+    console.error('회원가입 실패:', err);
+    addToast('회원가입 중 오류가 발생했습니다.', 'error', 3000);
+  }
 };
 </script>
 
@@ -114,7 +145,7 @@ const submitForm = () => {
         </div>
 
         <div class="form-row">
-          <label for="mail" class="form-label">이메일</label>
+          <label for="email" class="form-label">이메일</label>
           <input type="text" id="mail" v-model="formData.mail" class="form-input" placeholder="이메일을 입력하세요">
         </div>
 
