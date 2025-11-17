@@ -9,12 +9,15 @@ const cors = require('cors')  /* 설치: npm install express cors */
 // import todoModule from './routes/todo.js'
 
 let todoRoutes
+let statisticsRoutes
 try {
   // package.json _moduleAliases에 "@routes": "routes" 설정되어 있으면 사용
   todoRoutes = require('@routes/todo')
+  statisticsRoutes = require('@routes/statistics')
 } catch (err) {
   // alias가 없으면 상대경로로 fallback
   todoRoutes = require('./routes/todo')
+  statisticsRoutes = require('./routes/statistics')
 }
 // 삭제예정 : 20251029 src 외 controllers 라우팅 위한 주석 처리
 //const todoRoutes = todoModule?.default || todoModule // CommonJS/ESM 모두 대응
@@ -30,6 +33,8 @@ app.use(express.json())
  */
 app.use('/todos', todoRoutes)
 
+//const statisticsRoutes = require('./routes/statistics')
+app.use('/api/statistics', statisticsRoutes)
 
 /* 삭제예정 : 20251029 src 외 controllers 라우팅 위한 주석 처리
 let todos = []
