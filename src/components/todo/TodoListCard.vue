@@ -1,14 +1,18 @@
 <script setup>
 import { ref, computed , onMounted } from 'vue';
 import { useToast } from '@/stores/toast';
+import { useTodoStore } from '@/stores/todo';
 import TheButton from '@/components/common/TheButton.vue';
+import ConfirmModal from '@/components/common/ConfirmModal.vue';
 import CreateTodoModal from '@/components/todo/CreateTodoModal.vue';
 import ModifyTodoModal from '@/components/todo/ModifyTodoModal.vue';
 import axios from 'axios';
 import { Pencil, X } from 'lucide-vue-next'
 const API_BASE_URL = 'http://localhost:3000'; 
 
+const todoStore = useTodoStore();
 const { addToast } = useToast();
+const confirmModalRef = ref(null);
 const tabs = ref([]);
 const statusMap = ref({});
 const currentTab = ref(null);
@@ -66,13 +70,9 @@ const fetchTodos = async () => {
     error.value = null;
     try {
         // 실제 할 일 데이터를 가져오는 API 엔드포인트 호출
-        const response = await axios.get(`${API_BASE_URL}/todos`);
-        
-        // **중요**: DB에서 가져온 배열을 `todos.value`에 저장합니다.
-        todos.value = response.data; 
-        console.log("todos.value :: " + todos.value);
-        addToast('게시물이 조회되었습니다!', 'success', 3000);
-        
+        const response = await axios.get(`${API_BASE_URL}/todos`);        
+        // DB에서 가져온 배열을 `todos.value`에 저장합니다.
+        todos.value = response.data;        
     } catch (err) {
         addToast('할 일 데이터를 불러오는데 실패하였습니다.', 'error', 3000);
         console.error('할 일 데이터를 불러오는데 실패하였습니다.', err);
@@ -155,6 +155,31 @@ const handleModifyTodo = (formData) => {
   console.log('할 일 저장 완료!:', formData);
 };
 
+const deleteTodo = async (todo_id, event) => {
+    event.stopPropagation(); //행 클릭 이벤트 방지
+    
+    const confirmed = await confirmModalRef.value.open('이 게시글을 삭제하시겠습니까?');
+    
+    if (!confirmed) { // 사용자가 '취소'를 눌렀다면
+        addToast('삭제가 취소되었습니다.', 'info', 1500);
+        return;
+    }
+
+    try {
+        if (todo_id === null || todo_id === undefined) {
+            addToast('ID 정보를 가져오는데 실패했습니다', 'error', 3000);
+        } else {
+            await todoStore.deleteTodo(todo_id); 
+            addToast('게시물이 삭제되었습니다!', 'success', 3000);
+            fetchTodos(); // 목록 새로고침
+        }
+    } catch (error) {
+        addToast('삭제를 실패했습니다', 'error', 3000);
+        console.error('삭제 실행 중 처리되지 않은 오류 발생:', error);
+    }
+};
+
+
 const calcDiffDays = (start, end) => {
   if (!end) return ''
   if (!start) return ''
@@ -171,6 +196,7 @@ const calcDiffDays = (start, end) => {
     <div class="card-header-with-button">
       <h3 class="card-title">SR 리스트</h3>
         <div>
+        <ConfirmModal ref="confirmModalRef" />
         <ModifyTodoModal :isVisible="isModifyModalVisible":todo_id="selectedTodoId" @close="closeModifyTodoModal" @create="handleModifyTodo" />
         <TheButton type="button" class="add-button open-modal-button" text="새 할 일 추가" @click="openCreateTodoModal" :iconYn="false"/>
         <CreateTodoModal :isVisible="isCreateModalVisible" @close="closeCreateTodoModal" @create="handleCreateTodo" />
@@ -196,11 +222,11 @@ const calcDiffDays = (start, end) => {
         </thead>
         <tbody>
           <tr v-if="loading">
-            <td colspan="5" class="text-center">데이터를 불러오는 중입니다...</td>
+            <td colspan="6" class="text-center">데이터를 불러오는 중입니다...</td>
           </tr>
           
           <tr v-else-if="error">
-            <td colspan="5" class="text-center error-message">
+            <td colspan="6" class="text-center error-message">
               {{ error }}
             </td>
           </tr>
@@ -209,7 +235,7 @@ const calcDiffDays = (start, end) => {
             <td colspan="6" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
           </tr>
 
-          <tr v-for="todo in filteredTodos" :key="todo.todo_id" :class="getTodoStatusClass(todo.status_nm)" style="cursor: pointer;">
+          <tr v-for="todo in filteredTodos" :key="todo.todo_id" @click="openModifyTodoModal(todo.todo_id)" :class="getTodoStatusClass(todo.status_nm)" style="cursor: pointer;">
             <td>
               <span v-if="todo.status_nm === '완료'" class="status-icon completed">✔</span>
               <span v-else-if="todo.status_nm === '진행'" class="status-icon in-progress"></span>
@@ -235,9 +261,12 @@ const calcDiffDays = (start, end) => {
               <p class="todo-effort-bottom"></p>
             </td>
             <td>
-              <button class="icon-button edit" title="수정" @click="openModifyTodoModal(todo.todo_id)" :iconYn="true" >
-              <Pencil size="16" />
+              <button class="icon-button edit" title="수정" @click.stop="openModifyTodoModal(todo.todo_id)" :iconYn="true" >
+                <Pencil size="16" />
               </button>
+              <button class="icon-button delete" title="삭제" @click.stop="deleteTodo(todo.todo_id, $event)" :iconYn="true" >
+                <X size="16" />
+              </button>              
             </td>
           </tr>          
         </tbody>
@@ -318,6 +347,7 @@ const calcDiffDays = (start, end) => {
   vertical-align: top; /* 셀 내용 상단 정렬 */
   font-size: 14px;
   color: #333;
+  overflow: hidden;
 }
 
 .todo-table th {
@@ -325,6 +355,13 @@ const calcDiffDays = (start, end) => {
   font-weight: bold;
   color: #666;
   white-space: nowrap; /* 헤더 텍스트 줄바꿈 방지 */
+}
+
+.todo-table th:nth-child(2),
+.todo-table td:nth-child(2) {
+    width: 30%; 
+    min-width: 150px;
+    max-width: 250px; 
 }
 
 /* 상태 아이콘 및 텍스트 */
@@ -371,10 +408,16 @@ const calcDiffDays = (start, end) => {
   font-weight: bold;
   margin-bottom: 3px;
   color: #333;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;   
 }
 .todo-summary-sr {
   font-size: 13px;
   color: #777;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;    
 }
 
 /* 날짜 및 공수시간 두 줄 표시 */

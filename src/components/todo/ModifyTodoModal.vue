@@ -6,6 +6,7 @@ import { useTodoStore } from '@/stores/todo';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
 import TheButton from '@/components/common/TheButton.vue';
+import ConfirmModal from '@/components/common/ConfirmModal.vue';
 
 const props = defineProps({
   isVisible: {
@@ -22,6 +23,14 @@ const emit = defineEmits(['close', 'update']);
 const { addToast } = useToast();
 const loginStore = useLoginStore();
 const todoStore = useTodoStore();
+const confirmModalRef = ref(null);
+
+const statusOptions = [
+  { value: '1111', text: '접수' },
+  { value: '4444', text: '반려' },
+  { value: '7777', text: '진행' },
+  { value: '9999', text: '완료' },
+];
 
 const initialFormData = { // 폼 초기화
   todo_id : null,
@@ -100,6 +109,12 @@ const modifyTodo = async () => {
     return; // 저장 프로세스 중단
   }
 
+  const confirmed = await confirmModalRef.value.open('이 게시글을 수정하시겠습니까?');
+  
+  if (!confirmed) { //취소버튼 클릭시
+      return;
+  }  
+
   await todoStore.updateTodo(formData.value)
   addToast('정보가 성공적으로 저장되었습니다!', 'success', 3000);
   emit('update', formData.value);
@@ -107,6 +122,14 @@ const modifyTodo = async () => {
 };
 
 const deleteTodo = async () => {
+  const confirmed = await confirmModalRef.value.open('이 게시글을 삭제하시겠습니까?');
+  
+  // 2. 응답을 바로 조건문에서 사용합니다. (함수처럼 호출하지 않음)
+  if (!confirmed) { // 사용자가 '취소'를 눌렀다면
+      addToast('삭제가 취소되었습니다.', 'info', 1500);
+      return;
+  }
+
   const currentTodoId = props.todo_id;
   console.log('할 일 삭제 데이터:', currentTodoId);
   await todoStore.deleteTodo(currentTodoId)
@@ -128,6 +151,18 @@ const deleteTodo = async () => {
         <div class="form-row">
           <TheInputBox id="priority" label="우선순위" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
+        <div class="form-row select-row">
+          <label for="status" class="form-label">상태</label>
+          <select 
+            id="status" 
+            v-model="formData.status" 
+            class="form-select"
+          >
+            <option v-for="option in statusOptions" :key="option.value" :value="option.value">
+              {{ option.text }}
+            </option>
+          </select>
+        </div>       
         <div class="form-row">
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
         </div>
@@ -157,6 +192,7 @@ const deleteTodo = async () => {
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
         <TheButton type="button" class="button button-create" text="저장" @click="modifyTodo" :iconYn="false"/>
       </div>
+      <ConfirmModal ref="confirmModalRef" />
     </div>
   </div>
 </template>

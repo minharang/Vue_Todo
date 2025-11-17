@@ -2,16 +2,18 @@ const pool = require('../pool');
 
 exports.getTodos = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT todo_id, request_title
-       , request_content, user_id, status,  ( select cd_nm from comcd where cd_id = a.status ) as status_nm,  requester, type_id, del_yn, except_yn, priority
-       , srno, note, note2, start_dt, man_hour, calculate_hour
-       , DATE_FORMAT(created_dt, '%Y-%m-%d %H:%i:%s') AS created_dt
-       , create_id
-       , DATE_FORMAT(updated_dt, '%Y-%m-%d %H:%i:%s') AS updated_dt
-       , update_id
-       , DATE_FORMAT(completed_dt, '%Y-%m-%d %H:%i:%s') AS completed_dt
-       , DATE_FORMAT(due_dt, '%Y-%m-%d %H:%i:%s') AS due_dt
-       FROM todoboard a ORDER BY todo_id DESC`);
+    const [rows] = await pool.query(`SELECT a.todo_id, a.request_title
+       , a.request_content, a.user_id, a.status
+       , ( select cd_nm from comcd where cd_grp_id = 'S001' and cd_id = a.status LIMIT 1 ) as status_nm
+       , a.requester, a.type_id, a.del_yn, a.except_yn, a.priority
+       , a.srno, a.note, a.note2, a.start_dt, a.man_hour, a.calculate_hour
+       , DATE_FORMAT(a.created_dt, '%Y-%m-%d %H:%i:%s') AS created_dt
+       , a.create_id
+       , DATE_FORMAT(a.updated_dt, '%Y-%m-%d %H:%i:%s') AS updated_dt
+       , a.update_id
+       , DATE_FORMAT(a.completed_dt, '%Y-%m-%d %H:%i:%s') AS completed_dt
+       , DATE_FORMAT(a.due_dt, '%Y-%m-%d %H:%i:%s') AS due_dt
+       FROM todoboard a ORDER BY a.todo_id DESC`);
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -34,16 +36,17 @@ exports.getTodoById = async (req, res) => {
 exports.createTodo = async (req, res) => {
   const {
     priority, startDt, dueDt, completionDate,
-    requester, srno, requestTitle, requestContent, status, userId
+    requester, srno, requestTitle, requestContent, userId
   } = req.body;
 
   try {
     const sql = `INSERT INTO todoboard
-      (priority, start_dt, due_dt, completed_dt, requester, srno, request_title, request_content, status, user_id, create_id)
-      VALUES (?, COALESCE(NULLIF(?, ''), CURDATE()), ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+      (priority, start_dt, due_dt, completed_dt, requester, srno, request_title
+      , request_content, user_id, create_id)
+      VALUES (?, COALESCE(NULLIF(?, ''), CURDATE()), ?, ?, ?, ?, ?, ?, ?, ?)`;
     const [result] = await pool.query(sql, [
       priority, startDt, dueDt, completionDate,
-      requester, srno, requestTitle, requestContent, status, userId, userId
+      requester, srno, requestTitle, requestContent, userId, userId
     ]);
 
     const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [result.todo_id]);
