@@ -13,7 +13,7 @@ import { ref, computed , onMounted } from 'vue'
 
 
 const loginStore = useLoginStore();
-const userId = loginStore.userId;
+const userId = loginStore.g_userId;
 const statisticsStore = useStatisticsStore();
 
 const loading = ref(true);

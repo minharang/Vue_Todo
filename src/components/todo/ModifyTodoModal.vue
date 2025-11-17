@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, defineProps, defineEmits, watch, computed } from 'vue';
 import { useToast } from '@/stores/toast';
 import { useLoginStore } from '@/stores/login';
 import { useTodoStore } from '@/stores/todo';
@@ -37,6 +37,7 @@ const initialFormData = { // 폼 초기화
   priority: '',
   startDt: '',
   completedDt: '',
+  dueDt: '',
   requester: '',
   srno: '',
   requestTitle: '',
@@ -47,59 +48,79 @@ const initialFormData = { // 폼 초기화
 
 const formData = ref({ ...initialFormData }); // 초기 폼 데이터
 
+const isOwner = computed(() => {
+  // formData.value.userId는 상세 정보를 불러온 후 설정됨
+  return loginStore.g_userId && formData.value.userId === loginStore.g_userId;
+});
+
 // watch를 사용하여 isVisible이 변경될 때만 실행
 watch(() => props.isVisible, async (newVal) => {
-    if (newVal) { // 모달이 열릴 때 (isVisible === true)
-        const currentTodoId = props.todo_id;
-        formData.value.userId = loginStore.userId;
-
-        if (currentTodoId) { // 수정 모드 (todo_id가 있는 경우)
-            formData.value.todo_id = currentTodoId;
-            try {
-                console.log(`fetchTodoDetail(${currentTodoId}) :: 상세 정보 로딩 시작`);
-                const response = await todoStore.getTodoById(currentTodoId);
-                
-                //store에서 null 반환 시
-                if (!response) {
-                     throw new Error('서버에서 데이터를 받지 못했습니다.');
-                }
-                
-                // 데이터 매핑
-                formData.value.priority = response.priority;
-                formData.value.requestTitle = response.request_title;
-                formData.value.requestContent = response.request_content;
-                formData.value.requester = response.requester;
-                formData.value.srno = response.srno;
-
-                // 날짜 변환 및 매핑
-                formData.value.startDt = response.start_dt ? response.start_dt.split('T')[0] : '';
-                formData.value.dueDt = response.due_dt ? response.due_dt.split('T')[0] : '';
-                formData.value.completedDt = response.completed_dt ? response.completed_dt.split('T')[0] : '';
-
-                formData.value.status = response.status;
-                formData.value.userId = response.user_id;
-
-            } catch (error) {
-                addToast('상세 정보를 가져오는데 실패했습니다', 'error', 3000);
-                console.error(`${currentTodoId} 상세 정보를 가져오는데 실패했습니다.`, error);
-                // 실패 시 모달을 닫기
-                emit('close'); 
-            }
-        } else { // 새 할 일 모드 (todo_id가 null인 경우)
-            formData.value = { ...initialFormData }; // 폼 초기화
-            addToast('ID 정보 없이 모달 열림', 'error', 3000);
-        }
-    } else { // 모달이 닫힐 때 (isVisible === false)
-        // 모달이 닫힐 때 폼 데이터 초기화
-        formData.value = { ...initialFormData }; 
+    if (!newVal) {
+        // 모달이 닫힐 때 (isVisible === false): 폼 데이터 초기화
+        formData.value = { ...initialFormData };
+        return;
     }
-}, { immediate: true }); // 컴포넌트 마운트 시 한 번 실행
+
+    // 모달이 열릴 때 (isVisible === true)
+    const currentTodoId = props.todo_id;
+
+    // todo_id가 유효하지 않는 경우
+    if (!currentTodoId) {
+        addToast('할 일 ID가 없어 상세 정보를 불러올 수 없습니다.', 'error', 3000);
+        console.error('TodoUpdateModal: 유효한 todo_id 없이 모달이 열렸습니다.');
+        emit('close');
+        return;
+    }
+
+    // 폼 초기화 및 사용자 ID 설정 (현재 로그인한 사용자 ID는 데이터 로딩과 별개로 설정)
+    formData.value = { 
+        ...initialFormData, 
+        userId: loginStore.g_userId, // 초기에는 현재 로그인 사용자 ID로 설정 (로딩 후 덮어쓰기 위해)
+        todo_id: currentTodoId 
+    };
+
+    try {
+        console.log(`fetchTodoDetail(${currentTodoId}) :: 상세 정보 로딩 시작`);
+        const response = await todoStore.getTodoById(currentTodoId);
+        
+        if (!response) {
+            throw new Error('서버에서 데이터를 받지 못했습니다. (데이터 없음)');
+        }
+        
+        // 데이터 매핑
+        formData.value.priority = response.priority || '';
+        formData.value.requestTitle = response.request_title || '';
+        formData.value.requestContent = response.request_content || '';
+        formData.value.requester = response.requester || '';
+        formData.value.srno = response.srno || '';
+
+        // 날짜 변환 및 매핑 (T 이후를 잘라 YYYY-MM-DD 형식으로 변환)
+        formData.value.startDt = response.start_dt ? response.start_dt.split('T')[0] : '';
+        formData.value.dueDt = response.due_dt ? response.due_dt.split('T')[0] : '';
+        formData.value.completedDt = response.completed_dt ? response.completed_dt.split('T')[0] : '';
+
+        formData.value.status = response.status || statusOptions[0].value; // 상태 기본값 설정
+        // 게시글의 실제 userId를 덮어쓰기
+        formData.value.userId = response.user_id; 
+
+    } catch (error) {
+        addToast('상세 정보를 가져오는데 실패했습니다.', 'error', 3000);
+        console.error(`할 일(${currentTodoId}) 상세 정보를 가져오는데 실패했습니다.`, error);
+        emit('close'); // 실패 시 모달을 닫기
+    }
+}, { immediate: true }); 
 
 const closeModal = () => {
   emit('close');
 };
 
 const modifyTodo = async () => {
+
+  if (!isOwner.value) {
+    addToast('수정 권한이 없습니다.', 'error', 3000);
+    return;
+  }
+
   const start = formData.value.startDt;
   const due = formData.value.dueDt;
 
@@ -122,6 +143,12 @@ const modifyTodo = async () => {
 };
 
 const deleteTodo = async () => {
+
+  if (!isOwner.value) {
+    addToast('삭제 권한이 없습니다.', 'error', 3000);
+    return;
+  }
+
   const confirmed = await confirmModalRef.value.open('이 게시글을 삭제하시겠습니까?');
   
   // 2. 응답을 바로 조건문에서 사용합니다. (함수처럼 호출하지 않음)
@@ -156,7 +183,7 @@ const deleteTodo = async () => {
           <select 
             id="status" 
             v-model="formData.status" 
-            class="form-select"
+            class="form-input"
           >
             <option v-for="option in statusOptions" :key="option.value" :value="option.value">
               {{ option.text }}
@@ -188,9 +215,25 @@ const deleteTodo = async () => {
       <TheInputBox id="todo_id" label="todo_id" type="hidden" :labelNeed ="false" :srOnlyLabel = "true" v-model="formData.todo_id"/>
 
       <div class="modal-footer">
-        <TheButton type="button" class="button button-delete" text="삭제" @click="deleteTodo" :iconYn="false"/>
+        <!-- isOwner가 true일 때만 삭제/저장 버튼을 노출합니다. -->
+        <TheButton 
+          v-if="isOwner"
+          type="button" 
+          class="button button-delete" 
+          text="삭제" 
+          @click="deleteTodo" 
+          :iconYn="false"
+          :disabled="!formData.todo_id"
+        />
         <TheButton type="button" class="button button-cancel" text="취소" @click="closeModal" :iconYn="false"/>
-        <TheButton type="button" class="button button-create" text="저장" @click="modifyTodo" :iconYn="false"/>
+        <TheButton 
+          v-if="isOwner"
+          type="button" 
+          class="button button-create" 
+          text="저장" 
+          @click="modifyTodo" 
+          :iconYn="false"
+        />
       </div>
       <ConfirmModal ref="confirmModalRef" />
     </div>

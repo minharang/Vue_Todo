@@ -6,13 +6,16 @@ exports.getTodos = async (req, res) => {
        , a.request_content, a.user_id, a.status
        , ( select cd_nm from comcd where cd_grp_id = 'S001' and cd_id = a.status LIMIT 1 ) as status_nm
        , a.requester, a.type_id, a.del_yn, a.except_yn, a.priority
-       , a.srno, a.note, a.note2, a.start_dt, a.man_hour, a.calculate_hour
-       , DATE_FORMAT(a.created_dt, '%Y-%m-%d %H:%i:%s') AS created_dt
+       , a.srno, a.note, a.note2
+       , DATE_FORMAT(a.start_dt, '%Y-%m-%d') AS start_dt
+       , a.man_hour, a.calculate_hour
+       , DATE_FORMAT(a.created_dt, '%Y-%m-%d') AS created_dt
        , a.create_id
-       , DATE_FORMAT(a.updated_dt, '%Y-%m-%d %H:%i:%s') AS updated_dt
+       , DATE_FORMAT(a.updated_dt, '%Y-%m-%d') AS updated_dt
        , a.update_id
-       , DATE_FORMAT(a.completed_dt, '%Y-%m-%d %H:%i:%s') AS completed_dt
-       , DATE_FORMAT(a.due_dt, '%Y-%m-%d %H:%i:%s') AS due_dt
+       , DATE_FORMAT(a.completed_dt, '%Y-%m-%d') AS completed_dt
+       , DATE_FORMAT(a.due_dt, '%Y-%m-%d') AS due_dt
+       , (select user_name from users where user_id = a.user_id) as user_name
        FROM todoboard a ORDER BY a.todo_id DESC`);
     res.json(rows);
   } catch (err) {
@@ -59,18 +62,19 @@ exports.createTodo = async (req, res) => {
 
 exports.updateTodo = async (req, res) => {
   const {
-    priority, startDt, dueDt, completionDate,
+    priority, startDt, dueDt,
     requester, srno, requestTitle, requestContent, status, userId, todo_id
   } = req.body;
 
   try {
     const sql = `update todoboard
-                    set priority = ? , start_dt = COALESCE(NULLIF(?, ''), CURDATE()) , due_dt = ? , completed_dt = ? 
-                      , requester = ? , srno = ? , request_title = ? , request_content = ?
-                      , status = ? , update_id = ?
+                    set priority = ? , start_dt = COALESCE(NULLIF(?, ''), CURDATE()) , due_dt = ? 
+                    , completed_dt = case when ? = '9999' then CURDATE() else null end
+                    , requester = ? , srno = ? , request_title = ? , request_content = ?
+                    , status = ? , update_id = ?
                   where todo_id = ?`;
     const [result] = await pool.query(sql, [
-      priority, startDt, dueDt, completionDate,
+      priority, startDt, dueDt, status,
       requester, srno, requestTitle, requestContent, status, userId, todo_id
     ]);
     const [rows] = await pool.query('SELECT * FROM todoboard WHERE todo_id = ?', [todo_id]);

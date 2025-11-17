@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed , onMounted } from 'vue';
 import { useToast } from '@/stores/toast';
+import { useLoginStore } from '@/stores/login';
 import { useTodoStore } from '@/stores/todo';
 import TheButton from '@/components/common/TheButton.vue';
 import ConfirmModal from '@/components/common/ConfirmModal.vue';
@@ -12,11 +13,22 @@ const API_BASE_URL = 'http://localhost:3000';
 
 const todoStore = useTodoStore();
 const { addToast } = useToast();
+const loginStore = useLoginStore();
 const confirmModalRef = ref(null);
 const tabs = ref([]);
 const statusMap = ref({});
 const currentTab = ref(null);
 const GRP_ID_FOR_TABS = 'S001';
+
+// 상태 변수
+const todos = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+const isTodoOwner = (todoUserId) => {
+  // loginStore.g_userId가 유효하고, todoUserId와 일치하는지 확인
+  return loginStore.g_userId && todoUserId === loginStore.g_userId;
+};
 
 const fetchStatus = async () => {
     try {
@@ -58,12 +70,6 @@ const handleTabClick = (tabValue) => {
     console.log(`탭변경됨요: ${tabValue}`);
     
 };
-
-
-// 상태 변수
-const todos = ref([]);
-const loading = ref(true);
-const error = ref(null);
 
 const fetchTodos = async () => {
     loading.value = true;
@@ -157,6 +163,7 @@ const handleModifyTodo = (formData) => {
 
 const deleteTodo = async (todo_id, event) => {
     event.stopPropagation(); //행 클릭 이벤트 방지
+    const g_userId = loginStore.g_userId;
     
     const confirmed = await confirmModalRef.value.open('이 게시글을 삭제하시겠습니까?');
     
@@ -213,11 +220,11 @@ const calcDiffDays = (start, end) => {
         <thead>
           <tr>
             <th>상태</th>
-            <th>제목</th>
-            <th>등록일</th>
-            <th>완료예정일<br>완료일</br></th>
-            <th>공수시간</th>
-            <th>작업</th>
+            <th>제목<br>SR번호</br></th>
+            <th>요청자<br>담당자</br></th>
+            <th>시작일<br>목표완료일</br></th>
+            <th>작업완료일</th>
+            <th>편집</th>
           </tr>
         </thead>
         <tbody>
@@ -245,27 +252,43 @@ const calcDiffDays = (start, end) => {
             </td>
             <td>
               <p class="todo-summary-title">{{ todo.request_title }}</p>
+              <p class="todo-summary-sr">{{ todo.srno }}</p>
             </td>
             
             <td>
-              <p class="todo-date-top">{{ todo.due_dt }}</p>
-              <p class="todo-date-bottom">{{ todo.completed_dt}}</p>
+              <p class="todo-date-top">{{ todo.requester }}</p>
+              <p class="todo-date-bottom">{{ todo.user_name }}</p>
             </td>
             <td>
-              <p class="todo-effort-top">{{ todo.completed_dt }}</p>
-              <p class="todo-effort-bottom"></p>
+              <p class="todo-effort-top">{{ todo.start_dt }}</p>
+              <p class="todo-effort-bottom">{{ todo.due_dt }}</p>
             </td>
             <td>
-              <p class="todo-effort-top">{{ calcDiffDays(todo.completed_dt, todo.due_dt) }}</p>
+              <p class="todo-effort-top">{{ todo.completed_dt}}</p>
               <p class="todo-effort-bottom"></p>
             </td>
             <td class="action-icons">
-              <button class="icon-button edit" title="수정" @click.stop="openModifyTodoModal(todo.todo_id)" :iconYn="true" >
-                <Pencil size="16" />
+              <!-- 소유자만 수정 버튼 노출 -->
+              <button 
+                v-if="isTodoOwner(todo.user_id)"
+                class="icon-button edit" 
+                title="수정" 
+                @click.stop="openModifyTodoModal(todo.todo_id)" 
+                :iconYn="true" 
+              >
+              <Pencil size="16" />
               </button>
-              <button class="icon-button delete" title="삭제" @click.stop="deleteTodo(todo.todo_id, $event)" :iconYn="true" >
-                <X size="16" />
-              </button>              
+              
+              <!-- 소유자만 삭제 버튼 노출 -->
+              <button 
+                v-if="isTodoOwner(todo.user_id)"
+                class="icon-button delete" 
+                title="삭제" 
+                @click.stop="deleteTodo(todo.todo_id, $event)" 
+                :iconYn="true" 
+              >
+              <X size="16" />
+              </button>  
             </td>
           </tr>          
         </tbody>

@@ -50,7 +50,7 @@ const closeModal = () => {
 
 const createTodo = async () => {
 
-  formData.value.userId = loginStore.userId;
+  formData.value.userId = loginStore.g_userId;
   const start = formData.value.startDt;
   const due = formData.value.dueDt;
 

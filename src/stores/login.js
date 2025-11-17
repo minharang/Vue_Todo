@@ -85,7 +85,7 @@ export const useLoginStore = defineStore('login', {
         },
     },
     getters: {
-        userId: (state) => state.user ? state.user.USER_ID : 'Guest',
-        userName: (state) => state.user ? state.user.USER_NAME : 'Guest',
+        g_userId: (state) => state.user ? state.user.USER_ID : 'Guest',
+        g_userName: (state) => state.user ? state.user.USER_NAME : 'Guest',
     },
 });
