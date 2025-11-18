@@ -6,6 +6,7 @@ import { useTodoStore } from '@/stores/todo';
 import TheInputBox from '@/components/common/TheInputBox.vue';
 import TheTextArea from '@/components/common/TheTextArea.vue';
 import TheButton from '@/components/common/TheButton.vue';
+import TheSelectBox from '@/components/common/TheSelectBox.vue';
 import ConfirmModal from '@/components/common/ConfirmModal.vue';
 
 const props = defineProps({
@@ -178,17 +179,8 @@ const deleteTodo = async () => {
         <div class="form-row">
           <TheInputBox id="priority" label="우선순위" type="text" v-model="formData.priority" :srOnlyLabel="false" />
         </div>
-        <div class="form-row select-row">
-          <label for="status" class="form-label">상태</label>
-          <select 
-            id="status" 
-            v-model="formData.status" 
-            class="form-input"
-          >
-            <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-              {{ option.text }}
-            </option>
-          </select>
+        <div class="form-row">
+          <TheSelectBox id="status" label="상태" v-model="formData.status" :options="statusOptions" />
         </div>       
         <div class="form-row">
           <TheInputBox id="startDt" label="시작일" type="date" v-model="formData.startDt"/>
