@@ -228,20 +228,6 @@ const calcDiffDays = (start, end) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-if="loading">
-            <td colspan="6" class="text-center">데이터를 불러오는 중입니다...</td>
-          </tr>
-          
-          <tr v-else-if="error">
-            <td colspan="6" class="text-center error-message">
-              {{ error }}
-            </td>
-          </tr>
-
-          <tr v-else-if="filteredTodos.length === 0">
-            <td colspan="6" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
-          </tr>
-
           <tr v-for="todo in filteredTodos" :key="todo.todo_id" @click="openModifyTodoModal(todo.todo_id)" :class="getTodoStatusClass(todo.status_nm)" style="cursor: pointer;">
             <td>
               <p>
@@ -293,7 +279,20 @@ const calcDiffDays = (start, end) => {
                 </button>  
               </p>
             </td>
-          </tr>          
+          </tr> 
+          <tr v-if="loading">
+            <td colspan="6" class="text-center">데이터를 불러오는 중입니다...</td>
+          </tr>
+          
+          <tr v-else-if="error">
+            <td colspan="6" class="text-center error-message">
+              {{ error }}
+            </td>
+          </tr>
+
+          <tr v-else-if="filteredTodos.length === 0">
+            <td colspan="6" class="text-center">현재 탭에 해당하는 SR이 없습니다.</td>
+          </tr>         
         </tbody>
       </table>
     </div>
