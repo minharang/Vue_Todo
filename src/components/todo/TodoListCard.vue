@@ -220,7 +220,7 @@ const calcDiffDays = (start, end) => {
         <thead>
           <tr>
             <th>상태</th>
-            <th>제목<br>SR번호</br></th>
+            <th>[SR번호] 제목</th>
             <th>요청자<br>담당자</br></th>
             <th>시작일<br>목표완료일</br></th>
             <th>작업완료일</th>
@@ -244,15 +244,16 @@ const calcDiffDays = (start, end) => {
 
           <tr v-for="todo in filteredTodos" :key="todo.todo_id" @click="openModifyTodoModal(todo.todo_id)" :class="getTodoStatusClass(todo.status_nm)" style="cursor: pointer;">
             <td>
-              <span v-if="todo.status_nm === '완료'" class="status-icon completed">✔</span>
-              <span v-else-if="todo.status_nm === '진행'" class="status-icon in-progress"></span>
-              <span v-else-if="todo.status_nm === '반려'" class="status-icon on-hold">▲</span>
-              <span v-else-if="todo.status_nm === '접수'" class="status-icon incomplete"></span>
-              {{ todo.status_nm }}
+              <p>
+                <span v-if="todo.status_nm === '완료'" class="status-icon completed">✔</span>
+                <span v-else-if="todo.status_nm === '진행'" class="status-icon in-progress"></span>
+                <span v-else-if="todo.status_nm === '반려'" class="status-icon on-hold">▲</span>
+                <span v-else-if="todo.status_nm === '접수'" class="status-icon incomplete"></span>
+                {{ todo.status_nm }}
+              </p>
             </td>
             <td>
-              <p class="todo-summary-title">{{ todo.request_title }}</p>
-              <p class="todo-summary-sr">{{ todo.srno }}</p>
+              <p class="todo-summary-title"><span class="todo-summary-sr">[ {{ todo.srno }} ] </span> {{ todo.request_title }}</p>
             </td>
             
             <td>
@@ -267,28 +268,30 @@ const calcDiffDays = (start, end) => {
               <p class="todo-effort-top">{{ todo.completed_dt}}</p>
               <p class="todo-effort-bottom"></p>
             </td>
-            <td class="action-icons">
-              <!-- 소유자만 수정 버튼 노출 -->
-              <button 
-                v-if="isTodoOwner(todo.user_id)"
-                class="icon-button edit" 
-                title="수정" 
-                @click.stop="openModifyTodoModal(todo.todo_id)" 
-                :iconYn="true" 
-              >
-              <Pencil size="16" />
-              </button>
-              
-              <!-- 소유자만 삭제 버튼 노출 -->
-              <button 
-                v-if="isTodoOwner(todo.user_id)"
-                class="icon-button delete" 
-                title="삭제" 
-                @click.stop="deleteTodo(todo.todo_id, $event)" 
-                :iconYn="true" 
-              >
-              <X size="16" />
-              </button>  
+            <td>
+              <p>
+                <!-- 소유자만 수정 버튼 노출 -->
+                <button 
+                  v-if="isTodoOwner(todo.user_id)"
+                  class="icon-button edit" 
+                  title="수정" 
+                  @click.stop="openModifyTodoModal(todo.todo_id)" 
+                  :iconYn="true" 
+                >
+                <Pencil size="16" />
+                </button>
+                
+                <!-- 소유자만 삭제 버튼 노출 -->
+                <button 
+                  v-if="isTodoOwner(todo.user_id)"
+                  class="icon-button delete" 
+                  title="삭제" 
+                  @click.stop="deleteTodo(todo.todo_id, $event)" 
+                  :iconYn="true" 
+                >
+                <X size="16" />
+                </button>  
+              </p>
             </td>
           </tr>          
         </tbody>
@@ -364,7 +367,7 @@ const calcDiffDays = (start, end) => {
 .todo-table th{
   padding: 12px 15px;
   border-bottom: 1px solid #eee;
-  vertical-align: top; /* 셀 내용 상단 정렬 */
+  vertical-align: middle; /* 셀 내용 상단 정렬 */
   font-size: 14px;
   color: #333;
   overflow: hidden;
@@ -372,16 +375,16 @@ const calcDiffDays = (start, end) => {
 
 .todo-table td {
   padding: 12px 15px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #eee;
-  vertical-align: top; /* 셀 내용 상단 정렬 */
+  vertical-align: middle; /* 셀 내용 상단 정렬 */
   font-size: 14px;
   color: #333;
   overflow: hidden;
 }
 
-.todo-table td:nth-last-child{
-  text-align:center;
+.todo-table td:nth-child(2){
+  text-align:left;
 }
 
 .todo-table th {
@@ -440,7 +443,6 @@ const calcDiffDays = (start, end) => {
 /* 요약 SR 번호 */
 .todo-summary-title {
   font-weight: bold;
-  margin-bottom: 3px;
   color: #333;
   white-space: nowrap; 
   overflow: hidden; 
@@ -448,10 +450,7 @@ const calcDiffDays = (start, end) => {
 }
 .todo-summary-sr {
   font-size: 13px;
-  color: #777;
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis;    
+  color: #777;    
 }
 
 /* 날짜 및 공수시간 두 줄 표시 */
@@ -506,21 +505,15 @@ const calcDiffDays = (start, end) => {
     transition: background-color 0.15s ease;
 }
 
-/* ✅ 아이콘 버튼 영역 */
-.action-icons {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
 
-.icon-button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
+  .icon-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
 
 .icon-button:hover {
   background: #f3f4f6;
