@@ -51,7 +51,6 @@ const localValue = computed({
       :id="id" 
       v-model="localValue" 
       class="form-input"
-      :class="selectClass"
     >
       <option value="" disabled>{{ placeholder }}</option> 
       
