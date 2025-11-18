@@ -3,13 +3,31 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3000'; 
 
+const loadUserFromLocalStorage = () => {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) return null;
+    
+    try {
+        return JSON.parse(storedUser);
+    } catch (e) {
+        console.error('Local Storage에서 사용자 정보 로드 실패:', e);
+        // 파싱 실패 시 초기화
+        localStorage.removeItem('user');
+        return null;
+    }
+};
+
 export const useLoginStore = defineStore('login', {
-    state: () => ({
-        user: null, 
-        isAuthenticated: false, 
-        isLoadingUser: false,
-        loginError:null,
-    }),
+    state: () => {
+        const user = loadUserFromLocalStorage();
+        
+        return {
+            user: user, 
+            isAuthenticated: !!(user && user.USER_ID), 
+            isLoadingUser: false,
+            loginError:null,
+        };
+    },
     actions: {
         async fetchCurrentUser() {
             this.isLoadingUser = true; 
@@ -18,7 +36,7 @@ export const useLoginStore = defineStore('login', {
                 const response = await axios.get(`${API_BASE_URL}/api/com/getCurrentUser`, { withCredentials: true }); 
                 
                 this.user = response.data;
-                //페이지 새로고침시 상태 유지를 위해 LocalStorage에 저장
+                
                 localStorage.setItem('user', JSON.stringify(response.data));
                 this.isAuthenticated = !!response.data.USER_ID; 
 
@@ -27,8 +45,10 @@ export const useLoginStore = defineStore('login', {
             } catch (err) {
                if (err.response && err.response.status === 401) {
                     console.log('세션 정보 없음: 로그아웃 상태');
+                    localStorage.removeItem('user');
                 } else {
                     console.error('사용자 정보 로딩 실패:', err);
+                    localStorage.removeItem('user');
                 }
                 this.user = null;
                 this.isAuthenticated = false;

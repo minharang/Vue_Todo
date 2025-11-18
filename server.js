@@ -17,7 +17,13 @@ app.use(express.json());
 app.use(session({
     secret: 'study-pmds-srtodo-key-1357',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: false,  // (개발 환경) http에서 동작하도록 false (배포 시 true 권장)
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 
+    }
 }));
 
 
