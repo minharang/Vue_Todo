@@ -24,14 +24,40 @@ exports.getStatistics = async (req, res) => {
 
 exports.getUserActualWorkingHours = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT
-      SUM(A.man_hour_sum) AS man_hour_sum
-    FROM usersworksheet A
-    WHERE A.user_id = ? AND A.\`year\` = ? AND A.\`month\` = ?
-    GROUP BY A.user_id, A.\`year\`, A.\`month\`, A.date`, [req.params.user_id, req.params.year, req.params.month
-    ]);
-    
-      if (!rows.length) return res.status(404).json({ message: '사용자 월별 근무 정보 없음' });
+    const [rows] = await pool.query(`
+ WITH baseTable AS (
+        select A.user_id
+                , A.\`year\` 
+                , A.\`month\` 
+                , A.\`date\` 
+                , sum(A.man_hour_sum) as man_hour_sum
+                from usersworksheet A
+          group by A.user_id , A.\`year\` , A.\`month\` , A.\`date\`   
+   ),
+ monthlyWorkInfo as (
+    select * from monthlytask
+ ),
+ holidayInfo as (
+    select T1.user_id , T1.\`year\` , T1.\`month\`, sum(T1.holiday_hour) as holiday_hour_sum
+      from (	select m.*,
+              (select cd_nm from comcd where cd_grp_id = 'S004' and cd_id = m.holiday_id) as holiday_hour
+              from myholidaymng m 
+              where m.user_id = ?
+              and m.\`year\` = ?
+              and m.\`month\` = ?
+    ) T1 group by T1.user_id, T1.\`year\`, T1.\`month\`
+)
+ SELECT
+	baseTable.user_id
+  , man_hour_sum
+  , monthlyWorkInfo.net_work_hours
+  , monthlyWorkInfo.std_work_hour
+  , holidayInfo.holiday_hour_sum  
+ FROM baseTable
+  LEFT JOIN monthlyWorkInfo ON baseTable.\`year\`  = monthlyWorkInfo.\`year\`  and baseTable.\`month\`  = monthlyWorkInfo.\`month\` 
+  LEFT JOIN holidayInfo ON baseTable.user_id = holidayInfo.user_id and baseTable.\`year\` = holidayInfo.\`year\` 
+         	and baseTable.\`month\` = holidayInfo.\`month\` 
+ WHERE baseTable.user_id = ?`, [req.params.user_id, req.params.year, req.params.month, req.params.user_id]);
     console.log('[Executing Query]',rows[0]);
     res.json(rows[0]);
   } catch (err) {

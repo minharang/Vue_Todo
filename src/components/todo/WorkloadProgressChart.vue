@@ -9,8 +9,7 @@ import {
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { useLoginStore } from '@/stores/login';
 import { useStatisticsStore } from '@/stores/statistics';
-import { ref, computed , onMounted } from 'vue'
-
+import { ref, computed , onMounted, watchEffect } from 'vue'
 
 const loginStore = useLoginStore();
 const userId = loginStore.userId;
@@ -19,13 +18,10 @@ const statisticsStore = useStatisticsStore();
 const loading = ref(true);
 const error = ref(null);
 
-// ✅ 데이터 설정
-const totalHours = 500
-const holidayHours = 200
+const totalHours = ref(0);
+const holidayHours = ref(0);
 const actualHours = ref(0);
 
-
-const actualHoursList = ref([]);
 const year = 2025
 const month = 11
 
@@ -33,19 +29,11 @@ const fetchWorkloadProgress = async () => {
     loading.value = true;
     error.value = null;
     try {
-        // 실제 할 일 데이터를 가져오는 API 엔드포인트 호출
-        //const response = await axios.get(`${API_BASE_URL}/api/statistics`);
-        console.log(`fetchWorkloadProgress(${userId}) :: 상세 정보 로딩 시작`);
-        //실제 근무 시간
         const response = await statisticsStore.getUserActualWorkingHours(userId, year, month);
-
-        // **중요**: DB에서 가져온 배열을 `statisticsList.value`에 저장합니다.
-        actualHours.value = response?.man_hour_sum ?? 0;  // ❗ null, undefined 모두 0 처리
-        console.log("actualHours.man_hour_sum :: " + actualHours);
-        //addToast('게시물이 조회되었습니다!', 'success', 3000);
-        
+        actualHours.value = response?.man_hour_sum ?? 0;
+        totalHours.value = response?.net_work_hours ?? 0;
+        holidayHours.value = response?.holiday_hour_sum ?? 0;
     } catch (err) {
-        //addToast('통계 데이터를 불러오는데 실패하였습니다.', 'error', 3000);
         console.error('그래프 데이터를 불러오는데 실패하였습니다.', err);
         error.value = '그래프 데이터를 불러오는데 실패하였습니다.';
     } finally {
@@ -59,36 +47,37 @@ onMounted(async () => {
 
 const safeNumber = (value) => {
   const num = Number(value);
-  return isNaN(num) || value === null || value === undefined ? 0 : num;
+  return isNaN(num) || value === null || value === undefined || value === '' ? 0 : num;
 };
 
-const safeActualHours = safeNumber(actualHours);
+const safeActualHours = computed(() => safeNumber(actualHours.value));
+const safeTotalHours = computed(() => safeNumber(totalHours.value));
+const safeHolidayHours = computed(() => safeNumber(holidayHours.value));
+
+const totalAvailableHours = computed(() => Math.max(safeTotalHours.value - safeHolidayHours.value, 0));
+const remainingHours = computed(() => Math.max(totalAvailableHours.value - safeActualHours.value, 0));
+const percentage = computed(() => {
+  return totalAvailableHours.value > 0
+    ? Math.round((safeActualHours.value / totalAvailableHours.value) * 100)
+    : 0;
+});
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels) 
 
-const totalAvailableHours = totalHours - holidayHours
-const remainingHours = Math.max(totalAvailableHours - safeActualHours, 0)
-const percentage = Math.round((safeActualHours / totalAvailableHours) * 100)
-
-const chartData = {
-  labels: ['업무 수행', '미진행'],
-  datasets: [
-    {
-      data: [safeActualHours, remainingHours],
-      backgroundColor: ['#4F46E5', '#E5E7EB'],
-      borderWidth: 0,
-    },
-  ],
-}
+const chartData = computed(() => ({
+  labels: ['진행', '남은 시간'],
+  datasets: [{
+    data: [safeActualHours.value, remainingHours.value],
+    backgroundColor: ['#4F46E5', '#E0E7FF'],
+  }],
+}));
 
 const chartOptions = {
-  responsive: false, 
+  responsive: true, 
   maintainAspectRatio: false, 
   cutout: '60%',
   plugins: {
-    legend: {
-      display: false, 
-    },
+    legend: { display: false },
     tooltip: {
       displayColors: false,
       callbacks: {
@@ -98,20 +87,17 @@ const chartOptions = {
     datalabels: {
       display: false, 
       color: 'black',
-      font: {
-        weight: 'bold',
-        size: 18,
-      },
+      font: { weight: 'bold', size: 18 },
       formatter: (value) => `${value}`,
     },
   },
-}
+};
 
 const centerTextPlugin = {
   id: 'centerText',
   beforeDraw(chart) {
-    const { width, height, ctx } = chart;
-    const text = `${percentage}%`;
+    const { width, height, ctx, config } = chart;
+    const text = `${percentage.value}%`;
 
     ctx.restore();
     const fontSize = (height / 100 * 0.4).toFixed(2); 
@@ -124,17 +110,11 @@ const centerTextPlugin = {
     ctx.save();
   },
 };
-
-// 에러 핸들러 테스트용 버튼 함수
-function causeError() {
-  throw new Error("테스트용 고의 에러 발생!");
-}
 </script>
 
 <template>
   <h2 class="section-title">업무 수행률 정보</h2> 
   <div class="performance-info-card"> 
-
     <div class="chart-section">
       <h3 class="card-title mb-2">업무 공수시간</h3>
       <div class="donut-chart-wrapper">
@@ -143,23 +123,18 @@ function causeError() {
     </div>
 
     <div class="summary-section">
-      <div class="relative flex-1">
-        <h3 class="card-title summary-title">업무 공수시간 요약</h3>
-
-        <ul class="summary-list"> 
-          <li>📊 총 업무시간: <strong>{{ totalHours }}</strong>시간</li>
-          <li>🗓️ 휴일/휴가 시간: <strong>{{ holidayHours }}</strong>시간</li>
-          <li>⏰ 실제 업무 가능 시간: <strong>{{ totalAvailableHours }}</strong>시간</li>
-          <li>💼 실제 근무한 시간: <strong>{{ actualHours }}</strong>시간</li>
-        </ul>
-
-      </div>
+      <h3 class="data-v-e9edccf6">업무 공수시간 요약</h3>
+      <ul class="summary-list"> 
+        <li>📊 총 업무시간: <strong>{{ totalHours }}</strong>시간</li>
+        <li>🗓️ 휴일/휴가 시간: <strong>{{ holidayHours }}</strong>시간</li>
+        <li>⏰ 실제 업무 가능 시간: <strong>{{ totalAvailableHours }}</strong>시간</li>
+        <li>💼 실제 근무한 시간: <strong>{{ actualHours }}</strong>시간</li>
+      </ul>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* 섹션 타이틀 스타일 */
 .section-title {
   font-size: 1.5rem; 
   font-weight: 600; 
@@ -170,24 +145,19 @@ function causeError() {
 
 .performance-info-card {
   display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  gap: 160px;
-  width: 100%; 
-  max-width: none; 
+  align-items: flex-start; 
+  justify-content: space-between; 
+  flex-wrap: wrap;
+  gap: 60px;
   padding: 40px; 
-  min-height: 350px; 
-  margin: 0 auto; 
-  border-radius: 12px;
   background-color: #fff;
+  border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  box-sizing: border-box; 
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .chart-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   flex-shrink: 0; 
 }
 
@@ -197,12 +167,13 @@ function causeError() {
   color: #333;
   margin-bottom: 20px; 
   white-space: nowrap; 
+  text-align: center;
 }
 
 .donut-chart-wrapper {
   position: relative;
-  width: 280px; 
-  height: 280px; 
+  width: 240px; 
+  height: 240px; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -215,16 +186,17 @@ function causeError() {
 
 .summary-section {
   flex-grow: 1; 
-  flex-shrink: 1; 
-  max-width: 450px; 
+  max-width: 500px; 
   display: flex;
   flex-direction: column;
   justify-content: center; 
-  text-align: left; 
+  text-align: left;
+  margin: 0 auto;
 }
 
 .summary-title {
   margin-bottom: 20px; 
+  text-align: center;
 }
 
 .summary-list {
@@ -242,109 +214,13 @@ function causeError() {
   margin-left: 5px; 
 }
 
-/* 반응형 */
-@media (max-width: 1200px) { 
-    .performance-info-card {
-        gap: 120px;
-        padding: 35px;
-        min-height: 320px;
-    }
-    .donut-chart-wrapper {
-        width: 250px;
-        height: 250px;
-    }
-    .summary-section {
-        max-width: 400px; 
-    }
-    .summary-list {
-        font-size: 16px;
-        line-height: 2;
-    }
-    .card-title {
-        font-size: 1.15em;
-        margin-bottom: 18px;
-    }
-}
-
-@media (max-width: 992px) { 
+@media (max-width: 992px) {
   .performance-info-card {
-    gap: 80px; 
-    padding: 30px;
-    min-height: 300px;
-  }
-  .donut-chart-wrapper {
-    width: 220px; 
-    height: 220px; 
-  }
-  .summary-section {
-      max-width: 350px; 
-  }
-  .summary-list {
-    font-size: 15px;
-    line-height: 1.8;
-  }
-  .card-title {
-      font-size: 1.1em;
-      margin-bottom: 15px;
-  }
-}
-
-@media (max-width: 768px) { 
-  .section-title {
-      font-size: 1.3rem; 
-  }
-
-  .performance-info-card {
-    flex-direction: column; 
-    gap: 30px; 
-    padding: 25px; 
-    margin: 0 15px; 
-    min-height: unset; 
-  }
-
-  .chart-section {
-    width: 100%;
+    flex-direction: column;
     align-items: center;
   }
-
-  .donut-chart-wrapper {
-    width: 200px; 
-    height: 200px;
-  }
-
   .summary-section {
-    width: 100%; 
-    max-width: none; 
-    text-align: left; 
+    text-align: center;
   }
-
-  .summary-list {
-    font-size: 14px;
-    line-height: 1.7;
-  }
-  .card-title {
-      font-size: 1.0em;
-      margin-bottom: 10px;
-  }
-}
-
-@media (max-width: 480px) { 
-    .section-title {
-        font-size: 1.2rem;
-        margin-bottom: 0.8rem;
-    }
-    .performance-info-card {
-        padding: 15px;
-        gap: 20px;
-        margin: 0 10px; 
-    }
-    .donut-chart-wrapper {
-        width: 160px; 
-        height: 160px;
-    }
-    .summary-list {
-        font-size: 13px;
-        line-height: 1.6;
-    }
 }
 </style>
