@@ -12,7 +12,7 @@ import { useStatisticsStore } from '@/stores/statistics';
 import { ref, computed , onMounted, watchEffect } from 'vue'
 
 const loginStore = useLoginStore();
-const userId = loginStore.userId;
+const userId = loginStore.g_userId;
 const statisticsStore = useStatisticsStore();
 
 const loading = ref(true);

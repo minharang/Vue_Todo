@@ -3,7 +3,7 @@ const pool = require('../pool');
 exports.getCurrentUser = async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
-        return res.status(400).send({ message: '인증되지 않은 사용자입니다.' });
+        return res.status(401).send({ message: '인증되지 않은 사용자입니다.' });
     }
     try {
         const [rows]  = await pool.query('SELECT USER_ID, USER_NAME FROM USERS WHERE USER_ID = ?', [userId]); 

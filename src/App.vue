@@ -5,11 +5,16 @@ import ErrorBoundary from '@/components/common/ErrorBoundary.vue'
 import ToastNotification from '@/components/common/ToastNotification.vue';
 import { computed } from 'vue'
 import { useErrorStore } from '@/stores/errorStore'
+import { onMounted } from 'vue';
+import { useLoginStore } from '@/stores/login';
 
 const errorStore = useErrorStore()
 const error = computed(() => errorStore.lastError)
 const clearError = () => errorStore.clearError()
-
+const loginStore = useLoginStore();
+onMounted(async () => {
+    await loginStore.fetchCurrentUser();
+});
 </script>
 
 <template>
